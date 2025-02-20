@@ -1,0 +1,32 @@
+# Security Policies for DevSecOps Policy Scanner
+
+# Enforce Two-Factor Authentication (2FA) for all repository admins
+- key: enforce_2fa
+  value: true
+  description: "Two-Factor Authentication (2FA) must be enabled for all repository admins."
+
+# Ensure secrets are not exposed in the repository
+- key: secret_in_code
+  value: false
+  description: "Secrets should never be hardcoded in repository files."
+
+# Require branch protection rules for the main branch
+- key: branch_protection
+  value: true
+  description: "Main branch should have protection rules enabled."
+
+# Ensure CI/CD pipeline logs are not publicly accessible
+- key: public_pipeline_logs
+  value: false
+  description: "CI/CD pipeline logs should not be publicly accessible."
+
+# Enforce code scanning in CI/CD pipelines before merging code
+- key: require_code_scanning
+  value: true
+  description: "Code scanning must be enabled in CI/CD workflows."
+
+# Disallow usage of outdated dependencies in production
+- key: outdated_dependencies
+  value: false
+  description: "Outdated dependencies should not be used in production environments."
+

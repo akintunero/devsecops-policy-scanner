@@ -1,0 +1,56 @@
+# Byte-compiled / Cached files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+*.venv/
+
+# Logs and debug files
+logs/
+*.log
+debug.log
+
+# Environment variables & secrets (DO NOT COMMIT SECRETS)
+.env
+*.env
+config.json
+secrets.yaml
+
+# Dependencies
+*.lock
+pip-log.txt
+pip-delete-this-directory.txt
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code and JetBrains IDE settings
+.vscode/
+.idea/
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+
+# Compiled artifacts
+dist/
+build/
+*.egg-info/
+
+# Docker
+*.tar
+*.container
+*.image
+
+# Ignore Node.js dependencies (if applicable)
+node_modules/
+
+# Ignore test reports and temporary test files
+test-results/
+.nox/

@@ -1,0 +1,143 @@
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-xdist==3.3.1
+pytest-timeout==2.1.0
+pytest-mock==3.12.0
+coverage==7.3.2
+hypothesis==6.87.1
+
+# Linting and Code Quality
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+flake8-docstrings==1.7.0
+flake8-bugbear==23.3.12
+flake8-comprehensions==3.14.0
+flake8-pytest-style==1.7.2
+pylint==3.0.2
+mypy==1.7.0
+bandit==1.7.5
+safety==2.3.5
+pre-commit==3.5.0
+
+# Type Checking
+types-PyYAML==6.0.12.12
+types-requests==2.31.0.10
+types-setuptools==68.2.0.1
+types-toml==0.10.8.7
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.4.8
+mkdocstrings==0.23.0
+mkdocstrings-python==1.7.3
+mkdocs-git-revision-date-localized-plugin==1.2.1
+mkdocs-minify-plugin==0.7.1
+mike==1.1.2
+
+# Development Tools
+ipython==8.17.2
+ipdb==0.13.13
+rich==13.7.0
+debugpy==1.8.0
+
+# Build Tools
+build==1.0.3
+twine==4.0.2
+wheel==0.41.3
+
+# Security Tools
+owasp-dependency-check==0.4.6
+trufflehog==3.62.1
+detect-secrets==1.4.0
+
+# Performance Testing
+locust==2.17.0
+scalene==1.5.21
+
+# Mock Services
+moto==4.2.7
+responses==0.24.1
+vcrpy==5.1.0
+
+# Container Tools
+docker==6.1.3
+kubernetes==28.1.0
+
+# Infrastructure as Code
+python-terraform==0.10.1
+boto3-stubs==1.29.3
+azure-mgmt-core==1.4.0
+google-cloud-core==2.3.3
+
+# ML Development
+tensorflow==2.14.0
+scikit-learn==1.3.2
+torch==2.1.1
+transformers==4.35.2
+datasets==2.14.6
+
+# API Development
+httpx==0.25.1
+fastapi==0.104.1
+uvicorn[standard]==0.24.0.post1
+
+# Debugging and Profiling
+py-spy==0.3.14
+memory-profiler==0.61.0
+line-profiler==4.1.1
+
+# Git Hooks
+commitizen==3.12.0
+gitlint==0.19.1
+
+# Code Analysis
+radon==6.0.1
+xenon==0.9.1
+vulture==2.10
+
+# Documentation Testing
+doc8==1.1.1
+rstcheck==6.2.0
+proselint==0.13.0
+
+# Environment Management
+python-dotenv==1.0.0
+environs==9.5.0
+
+# Dependency Management
+pip-tools==7.3.0
+pipdeptree==2.13.1
+deptry==0.12.0
+
+# Testing Utilities
+faker==20.1.0
+factory-boy==3.3.0
+freezegun==1.2.2
+pytest-randomly==3.15.0
+pytest-sugar==0.9.7
+pytest-clarity==1.0.1
+pytest-icdiff==0.9
+
+# Code Generation
+cookiecutter==2.4.0
+cruft==2.15.0
+
+# Continuous Integration
+tox==4.11.3
+nox==2023.4.22
+
+# Static Type Checking Extensions
+mypy-extensions==1.0.0
+typing-extensions==4.8.0
+
+# Development Server
+watchdog==3.0.0
+livereload==2.6.3
+
+# Project-specific Development Dependencies
+opa-python==1.2.0  # For OPA integration testing
+pyhcl==0.4.4      # For Terraform file parsing
+ruamel.yaml==0.17.40  # For YAML processing

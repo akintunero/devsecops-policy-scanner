@@ -1,0 +1,29 @@
+{
+    "name": "privileged_container",
+    "description": "Detect privileged containers and root user execution",
+    "version": "1.0.0",
+    "severity": "high",
+    "platform": "docker",
+    "tags": ["security", "docker", "privileges", "container"],
+    "references": [
+        "https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities",
+        "https://snyk.io/blog/10-docker-image-security-best-practices/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html"
+    ],
+    "metadata": {
+        "cis_benchmark": "5.2",
+        "mitre_attack": "TA0004",
+        "nist_controls": ["AC-6", "CM-7"],
+        "impact": "high",
+        "likelihood": "high",
+        "remediation_effort": "medium",
+        "false_positives": [
+            "Containers that require privileged access for legitimate system operations",
+            "Development/testing environments with controlled access"
+        ],
+        "related_vulnerabilities": [
+            "CVE-2019-5736",
+            "CVE-2020-15257"
+        ]
+    }
+}

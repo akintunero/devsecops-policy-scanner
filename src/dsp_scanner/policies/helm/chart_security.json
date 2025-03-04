@@ -1,0 +1,168 @@
+{
+    "name": "chart_security",
+    "description": "Comprehensive security policy checks for Helm charts based on Kubernetes security best practices and Helm chart development guidelines",
+    "version": "1.0.0",
+    "severity": "high",
+    "platform": "helm",
+    "tags": [
+        "security",
+        "helm",
+        "kubernetes",
+        "container",
+        "chart",
+        "template",
+        "values"
+    ],
+    "references": [
+        "https://helm.sh/docs/topics/security/",
+        "https://helm.sh/docs/chart_best_practices/",
+        "https://kubernetes.io/docs/concepts/security/",
+        "https://github.com/helm/charts/tree/master/stable",
+        "https://artifacthub.io/docs/topics/security-report"
+    ],
+    "metadata": {
+        "cis_benchmark": [
+            "5.2.1",
+            "5.2.2",
+            "5.2.3",
+            "5.2.4",
+            "5.2.5",
+            "5.2.6",
+            "5.2.7",
+            "5.2.8",
+            "5.2.9"
+        ],
+        "kubernetes_security": {
+            "pod_security_standards": [
+                "restricted",
+                "baseline"
+            ],
+            "network_policies": true,
+            "rbac": true,
+            "secrets_management": true
+        },
+        "mitre_attack": [
+            "TA0001",
+            "TA0002",
+            "TA0004",
+            "TA0005",
+            "TA0006"
+        ],
+        "nist_controls": [
+            "AC-3",
+            "AC-6",
+            "CM-2",
+            "CM-6",
+            "SC-7",
+            "SI-2"
+        ],
+        "impact": "high",
+        "likelihood": "high",
+        "remediation_effort": "medium",
+        "false_positives": [
+            "Development/testing charts with temporary configurations",
+            "System components requiring privileged access",
+            "Legacy applications with specific requirements",
+            "Infrastructure components (CNI, CSI, etc.)"
+        ],
+        "related_vulnerabilities": [
+            "CVE-2021-25742",
+            "CVE-2021-25741",
+            "CVE-2020-8555",
+            "CVE-2020-8552"
+        ],
+        "chart_components": {
+            "templates": {
+                "checks": [
+                    "security_context",
+                    "container_security",
+                    "network_policies",
+                    "resource_limits",
+                    "health_checks"
+                ]
+            },
+            "values": {
+                "checks": [
+                    "sensitive_data",
+                    "default_configs",
+                    "security_parameters"
+                ]
+            },
+            "metadata": {
+                "checks": [
+                    "api_version",
+                    "maintainers",
+                    "documentation"
+                ]
+            }
+        },
+        "compliance": {
+            "pci_dss": [
+                "1.2.1",
+                "2.2.4",
+                "6.4.1",
+                "6.4.2",
+                "7.1.1",
+                "7.1.2"
+            ],
+            "hipaa": [
+                "164.308(a)(3)",
+                "164.308(a)(4)",
+                "164.312(a)(1)",
+                "164.312(e)(1)"
+            ],
+            "soc2": [
+                "CC6.1",
+                "CC6.2",
+                "CC6.3",
+                "CC6.6",
+                "CC6.7",
+                "CC7.1"
+            ],
+            "gdpr": [
+                "Article 25",
+                "Article 32"
+            ]
+        },
+        "remediation_procedures": {
+            "template_security": {
+                "security_context": "Configure appropriate security contexts at pod and container level",
+                "resource_limits": "Set appropriate CPU and memory limits",
+                "probes": "Implement health checks for reliability",
+                "networking": "Configure appropriate network policies"
+            },
+            "values_security": {
+                "sensitive_data": "Use Kubernetes secrets for sensitive information",
+                "image_tags": "Use specific version tags instead of latest",
+                "configurations": "Provide secure default values"
+            }
+        },
+        "best_practices": {
+            "versioning": "Use semantic versioning for charts",
+            "documentation": "Maintain comprehensive documentation",
+            "testing": "Include test cases and validation",
+            "dependencies": "Manage and validate dependencies",
+            "updates": "Regular security updates and patches"
+        },
+        "monitoring_recommendations": {
+            "metrics": [
+                "Container resource usage",
+                "Application health status",
+                "Security events",
+                "Configuration changes"
+            ],
+            "logging": [
+                "Application logs",
+                "Security events",
+                "Access logs",
+                "Audit logs"
+            ],
+            "alerts": [
+                "Security violations",
+                "Resource exhaustion",
+                "Health check failures",
+                "Configuration changes"
+            ]
+        }
+    }
+}

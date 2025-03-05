@@ -1,0 +1,165 @@
+{
+    "name": "main_policy",
+    "description": "Main policy coordinator for DSP Scanner that aggregates and manages all platform-specific security policies",
+    "version": "1.0.0",
+    "severity": "high",
+    "platform": "all",
+    "tags": [
+        "security",
+        "policy",
+        "coordination",
+        "aggregation",
+        "multi-platform"
+    ],
+    "references": [
+        "https://www.openpolicyagent.org/docs/latest/",
+        "https://www.cisecurity.org/benchmark/",
+        "https://nvd.nist.gov/800-53",
+        "https://owasp.org/www-project-top-ten/"
+    ],
+    "metadata": {
+        "supported_platforms": {
+            "docker": {
+                "policies": ["privileged_container"],
+                "frameworks": ["cis", "nist"]
+            },
+            "kubernetes": {
+                "policies": ["pod_security"],
+                "frameworks": ["cis", "nist", "pci-dss"]
+            },
+            "terraform": {
+                "policies": ["aws_security"],
+                "frameworks": ["cis", "nist", "hipaa"]
+            },
+            "helm": {
+                "policies": ["chart_security"],
+                "frameworks": ["cis", "kubernetes"]
+            }
+        },
+        "policy_evaluation": {
+            "order": [
+                "platform_detection",
+                "policy_selection",
+                "violation_detection",
+                "severity_sorting",
+                "compliance_checking",
+                "recommendation_generation"
+            ],
+            "aggregation": {
+                "methods": [
+                    "severity_based",
+                    "platform_based",
+                    "compliance_based"
+                ],
+                "scoring": {
+                    "weights": {
+                        "CRITICAL": 25,
+                        "HIGH": 15,
+                        "MEDIUM": 10,
+                        "LOW": 5,
+                        "INFO": 0
+                    },
+                    "max_score": 100
+                }
+            }
+        },
+        "compliance_frameworks": {
+            "cis": {
+                "description": "Center for Internet Security Benchmarks",
+                "version": "1.0.0",
+                "categories": [
+                    "Access Control",
+                    "Network Security",
+                    "Logging and Monitoring"
+                ]
+            },
+            "nist": {
+                "description": "NIST Special Publication 800-53",
+                "version": "Rev. 5",
+                "categories": [
+                    "Access Control",
+                    "Audit and Accountability",
+                    "System and Communications Protection"
+                ]
+            },
+            "hipaa": {
+                "description": "Health Insurance Portability and Accountability Act",
+                "version": "2.0.0",
+                "categories": [
+                    "Security Rule",
+                    "Privacy Rule",
+                    "Breach Notification Rule"
+                ]
+            },
+            "pci": {
+                "description": "Payment Card Industry Data Security Standard",
+                "version": "3.2.1",
+                "categories": [
+                    "Network Security",
+                    "Data Protection",
+                    "Access Control"
+                ]
+            }
+        },
+        "output_formats": {
+            "summary": {
+                "total_violations": "integer",
+                "violations_by_severity": "object",
+                "violations_by_platform": "object",
+                "security_score": "integer"
+            },
+            "detailed": {
+                "violations": "array",
+                "recommendations": "array",
+                "compliance_status": "object",
+                "critical_issues": "array"
+            }
+        },
+        "integration_capabilities": {
+            "ci_cd": [
+                "GitHub Actions",
+                "GitLab CI",
+                "Jenkins",
+                "Azure DevOps"
+            ],
+            "notifications": [
+                "Slack",
+                "Email",
+                "Microsoft Teams",
+                "Webhook"
+            ],
+            "reporting": [
+                "HTML",
+                "JSON",
+                "CSV",
+                "PDF"
+            ],
+            "dashboards": [
+                "Grafana",
+                "Kibana",
+                "Custom Web UI"
+            ]
+        },
+        "extensibility": {
+            "custom_policies": {
+                "supported": true,
+                "formats": ["Rego"],
+                "documentation": "See CONTRIBUTING.md"
+            },
+            "custom_rules": {
+                "supported": true,
+                "formats": ["YAML", "JSON"],
+                "documentation": "See docs/custom-rules.md"
+            },
+            "plugins": {
+                "supported": true,
+                "types": [
+                    "Scanner",
+                    "Reporter",
+                    "Notifier"
+                ],
+                "documentation": "See docs/plugins.md"
+            }
+        }
+    }
+}

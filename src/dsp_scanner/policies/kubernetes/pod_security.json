@@ -1,0 +1,94 @@
+{
+    "name": "pod_security",
+    "description": "Comprehensive Kubernetes Pod security policy checks based on Pod Security Standards and CIS Benchmarks",
+    "version": "1.0.0",
+    "severity": "high",
+    "platform": "kubernetes",
+    "tags": [
+        "security",
+        "kubernetes",
+        "pod",
+        "container",
+        "privileges",
+        "namespace",
+        "volumes"
+    ],
+    "references": [
+        "https://kubernetes.io/docs/concepts/security/pod-security-standards/",
+        "https://www.cisecurity.org/benchmark/kubernetes",
+        "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+        "https://www.nsa.gov/Press-Room/News-Highlights/Article/Article/2716980/nsa-cisa-release-kubernetes-hardening-guidance/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Kubernetes_Security_Cheat_Sheet.html"
+    ],
+    "metadata": {
+        "cis_benchmark": [
+            "5.2.1",
+            "5.2.2",
+            "5.2.3",
+            "5.2.4",
+            "5.2.5",
+            "5.2.6"
+        ],
+        "mitre_attack": [
+            "TA0002",
+            "TA0004",
+            "TA0005"
+        ],
+        "nist_controls": [
+            "AC-6",
+            "CM-7",
+            "SC-39",
+            "SI-7"
+        ],
+        "impact": "high",
+        "likelihood": "high",
+        "remediation_effort": "medium",
+        "false_positives": [
+            "Privileged pods required for system operations (e.g., CNI plugins)",
+            "HostPath volumes needed for specific use cases (e.g., monitoring agents)",
+            "Root user required for legacy applications",
+            "Service mesh sidecar containers without resource limits"
+        ],
+        "related_vulnerabilities": [
+            "CVE-2021-25741",
+            "CVE-2020-8557",
+            "CVE-2020-8558",
+            "CVE-2019-11246"
+        ],
+        "pod_security_standards": {
+            "privileged": "restricted",
+            "baseline": "enforced",
+            "restricted": "enforced"
+        },
+        "categories": [
+            "Access Control",
+            "Network Security",
+            "Resource Management",
+            "Container Security",
+            "Namespace Security"
+        ],
+        "compliance": {
+            "pci_dss": [
+                "1.2.1",
+                "2.2.4",
+                "6.4.2"
+            ],
+            "hipaa": [
+                "164.308(a)(4)",
+                "164.312(a)(1)",
+                "164.312(e)(1)"
+            ],
+            "soc2": [
+                "CC6.1",
+                "CC6.6",
+                "CC7.1"
+            ]
+        },
+        "remediation_procedures": {
+            "privileged_pods": "Use security contexts with minimum required privileges",
+            "host_path": "Use persistent volumes or appropriate volume types",
+            "root_user": "Configure non-root user in container image or security context",
+            "resource_limits": "Define appropriate CPU and memory limits"
+        }
+    }
+}

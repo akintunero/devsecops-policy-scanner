@@ -1,0 +1,165 @@
+site_name: DSP Scanner Documentation
+site_description: Advanced DevSecOps Policy Scanner for infrastructure security
+site_author: Olúmáyòwá Akinkuehinmi
+
+# Repository
+repo_name: akintunero/devsecops-policy-scanner
+repo_url: https://github.com/akintunero/devsecops-policy-scanner
+edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2025 Olúmáyòwá Akinkuehinmi
+
+# Configuration
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.copy
+  language: en
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.png
+  logo: assets/logo.png
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - attr_list
+  - codehilite
+  - footnotes
+  - meta
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - toc:
+      permalink: true
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Basic Usage: getting-started/basic-usage.md
+    - Configuration: getting-started/configuration.md
+  - User Guide:
+    - CLI Usage: cli.md
+    - Policy System: policies.md
+    - ML Analysis: ml_analysis.md
+    - Integrations: integrations.md
+    - Output Formats: user-guide/output-formats.md
+    - Best Practices: user-guide/best-practices.md
+  - Scanners:
+    - Docker: scanners/docker.md
+    - Kubernetes: scanners/kubernetes.md
+    - Terraform: scanners/terraform.md
+    - Helm: scanners/helm.md
+  - Advanced Topics:
+    - Custom Policies: advanced/custom-policies.md
+    - ML Model Training: advanced/ml-training.md
+    - Plugin Development: advanced/plugin-development.md
+    - API Reference: advanced/api-reference.md
+  - Integrations:
+    - CI/CD: integrations/ci-cd.md
+    - Cloud Platforms: integrations/cloud-platforms.md
+    - Security Tools: integrations/security-tools.md
+    - Custom Integration: integrations/custom-integration.md
+  - Contributing:
+    - Contributing Guide: contributing.md
+    - Code of Conduct: code_of_conduct.md
+    - Development Setup: contributing/development-setup.md
+    - Testing Guide: contributing/testing-guide.md
+  - Security:
+    - Security Policy: security.md
+    - Vulnerability Reporting: security/vulnerability-reporting.md
+    - Security Best Practices: security/best-practices.md
+  - About:
+    - Changelog: changelog.md
+    - License: license.md
+    - Maintainers: maintainers.md
+
+# Plugins
+plugins:
+  - search
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      type: date
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: true
+            show_root_heading: true
+  - social:
+      cards_font: Roboto
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/akintunero/devsecops-policy-scanner
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/dsp-scanner
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/dsp_scanner
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+
+# Extra CSS
+extra_css:
+  - stylesheets/extra.css
+
+# Extra JavaScript
+extra_javascript:
+  - javascripts/extra.js
+
+# Development server
+dev_addr: 127.0.0.1:8000

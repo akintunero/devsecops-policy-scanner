@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Main scanner service
+  dsp-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dsp-scanner:latest
+    volumes:
+      - ./:/workspace
+      - ~/.dsp-scanner:/home/scanner/.dsp-scanner
+    environment:
+      - DSP_SCANNER_CONFIG=/home/scanner/.dsp-scanner/config.yml
+    command: ["scan", "/workspace"]
+
+  # Development environment
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: dsp-scanner:dev
+    volumes:
+      - ./:/app
+      - ~/.dsp-scanner:/home/scanner/.dsp-scanner
+    environment:
+      - DSP_SCANNER_CONFIG=/home/scanner/.dsp-scanner/config.yml
+      - PYTHONPATH=/app/src
+      - POETRY_VIRTUALENVS_CREATE=false
+    command: ["poetry", "shell"]
+    ports:
+      - "8000:8000"  # For development server
+
+  # Documentation server
+  docs:
+    image: nginx:alpine
+    volumes:
+      - ./docs/_build/html:/usr/share/nginx/html:ro
+    ports:
+      - "8001:80"
+
+  # Test environment
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: dsp-scanner:test
+    volumes:
+      - ./:/app
+    environment:
+      - PYTHONPATH=/app/src
+      - POETRY_VIRTUALENVS_CREATE=false
+    command: ["poetry", "run", "pytest", "-v", "--cov=dsp_scanner", "tests/"]
+
+  # CI environment for GitHub Actions simulation
+  ci:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dsp-scanner:ci
+    volumes:
+      - ./:/workspace
+    environment:
+      - CI=true
+    command: >
+      sh -c "poetry install --no-interaction &&
+             poetry run pytest -v --cov=dsp_scanner --cov-report=xml tests/ &&
+             poetry run flake8 src/ tests/ &&
+             poetry run black --check src/ tests/ &&
+             poetry run mypy src/"
+
+networks:
+  default:
+    name: dsp-scanner-network
+
+volumes:
+  dsp-scanner-data:
+    name: dsp-scanner-data

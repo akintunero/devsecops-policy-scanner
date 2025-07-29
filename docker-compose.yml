@@ -1,80 +1,296 @@
 version: '3.8'
 
 services:
-  # Main scanner service
+  # Main DevSecOps Policy Scanner service
   dsp-scanner:
     build:
       context: .
       dockerfile: Dockerfile
-    image: dsp-scanner:latest
-    volumes:
-      - ./:/workspace
-      - ~/.dsp-scanner:/home/scanner/.dsp-scanner
+      target: production
+    image: devsecops-policy-scanner:latest
+    container_name: dsp-scanner
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
     environment:
-      - DSP_SCANNER_CONFIG=/home/scanner/.dsp-scanner/config.yml
-    command: ["scan", "/workspace"]
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - SCAN_TIMEOUT=300
+      - MAX_CONCURRENT_SCANS=10
+    volumes:
+      - ./config:/app/config
+      - ./policies:/app/policies
+      - ./reports:/app/reports
+      - scanner-data:/app/data
+    networks:
+      - dsp-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - redis
+      - postgres
 
   # Development environment
-  dev:
+  dsp-scanner-dev:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
-    image: dsp-scanner:dev
-    volumes:
-      - ./:/app
-      - ~/.dsp-scanner:/home/scanner/.dsp-scanner
-    environment:
-      - DSP_SCANNER_CONFIG=/home/scanner/.dsp-scanner/config.yml
-      - PYTHONPATH=/app/src
-      - POETRY_VIRTUALENVS_CREATE=false
-    command: ["poetry", "shell"]
+      target: development
+    image: devsecops-policy-scanner:dev
+    container_name: dsp-scanner-dev
+    restart: unless-stopped
     ports:
-      - "8000:8000"  # For development server
+      - "8081:8080"
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - SCAN_TIMEOUT=600
+      - MAX_CONCURRENT_SCANS=5
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./policies:/app/policies
+      - ./reports:/app/reports
+      - scanner-data:/app/data
+    networks:
+      - dsp-network
+    depends_on:
+      - redis
+      - postgres
 
-  # Documentation server
-  docs:
+  # Testing environment
+  dsp-scanner-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    image: devsecops-policy-scanner:test
+    container_name: dsp-scanner-test
+    restart: "no"
+    environment:
+      - ENVIRONMENT=testing
+      - LOG_LEVEL=DEBUG
+      - TEST_TIMEOUT=300
+    volumes:
+      - ./tests:/app/tests
+      - ./src:/app/src
+      - test-reports:/app/reports
+    networks:
+      - dsp-network
+    command: ["pytest", "tests/", "-v", "--cov=src", "--cov-report=html", "--cov-report=term"]
+
+  # Security scanning service
+  dsp-scanner-security:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: security
+    image: devsecops-policy-scanner:security
+    container_name: dsp-scanner-security
+    restart: "no"
+    environment:
+      - ENVIRONMENT=security
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./src:/app/src
+      - security-reports:/app/reports
+    networks:
+      - dsp-network
+    command: ["bandit", "-r", "src/", "-f", "json", "-o", "/app/reports/bandit-report.json"]
+
+  # Documentation service
+  dsp-scanner-docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: docs
+    image: devsecops-policy-scanner:docs
+    container_name: dsp-scanner-docs
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./docs:/app/docs
+      - docs-build:/app/docs/_build
+    networks:
+      - dsp-network
+    command: ["python", "-m", "http.server", "8000", "-d", "docs/_build/html"]
+
+  # PostgreSQL database for scan results and configuration
+  postgres:
+    image: postgres:15-alpine
+    container_name: dsp-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=dsp_scanner
+      - POSTGRES_USER=dsp_user
+      - POSTGRES_PASSWORD=dsp_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./config/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - dsp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dsp_user -d dsp_scanner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and job queue
+  redis:
+    image: redis:7-alpine
+    container_name: dsp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass dsp_redis_password
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - dsp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx reverse proxy
+  nginx:
     image: nginx:alpine
-    volumes:
-      - ./docs/_build/html:/usr/share/nginx/html:ro
+    container_name: dsp-nginx
+    restart: unless-stopped
     ports:
-      - "8001:80"
-
-  # Test environment
-  test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: builder
-    image: dsp-scanner:test
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./:/app
-    environment:
-      - PYTHONPATH=/app/src
-      - POETRY_VIRTUALENVS_CREATE=false
-    command: ["poetry", "run", "pytest", "-v", "--cov=dsp_scanner", "tests/"]
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/ssl:/etc/nginx/ssl
+      - nginx-logs:/var/log/nginx
+    networks:
+      - dsp-network
+    depends_on:
+      - dsp-scanner
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # CI environment for GitHub Actions simulation
-  ci:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: dsp-scanner:ci
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dsp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
     volumes:
-      - ./:/workspace
-    environment:
-      - CI=true
-    command: >
-      sh -c "poetry install --no-interaction &&
-             poetry run pytest -v --cov=dsp_scanner --cov-report=xml tests/ &&
-             poetry run flake8 src/ tests/ &&
-             poetry run black --check src/ tests/ &&
-             poetry run mypy src/"
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - dsp-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
 
-networks:
-  default:
-    name: dsp-scanner-network
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dsp-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=dsp_grafana_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - dsp-network
+    depends_on:
+      - prometheus
+
+  # Elasticsearch for log aggregation
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: dsp-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - dsp-network
+
+  # Kibana for log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: dsp-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - dsp-network
+    depends_on:
+      - elasticsearch
+
+  # Filebeat for log collection
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: dsp-filebeat
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ./config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/var/log/dsp-scanner:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dsp-network
+    depends_on:
+      - elasticsearch
 
 volumes:
-  dsp-scanner-data:
-    name: dsp-scanner-data
+  scanner-data:
+    driver: local
+  test-reports:
+    driver: local
+  security-reports:
+    driver: local
+  docs-build:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  nginx-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+
+networks:
+  dsp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -35,9 +35,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Run Bandit security scan
@@ -99,9 +99,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Run Black code formatter check
@@ -147,9 +147,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Run tests with coverage
@@ -188,9 +188,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Run integration tests
@@ -217,9 +217,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Run performance tests
@@ -247,9 +247,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
           pip install -e .
 
       - name: Build documentation

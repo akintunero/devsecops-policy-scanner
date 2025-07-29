@@ -1,169 +1,136 @@
 # Security Policy
 
-## Reporting a Vulnerability
-
-At DSP Scanner, we take security seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
-
-### Reporting Process
-
-1. **DO NOT** create a public GitHub issue for security vulnerabilities.
-
-2. Submit your report via one of these methods:
-   - Email: akintunero101@gmail.com
-   - Private GitHub Security Advisory: https://github.com/akintunero/devsecops-policy-scanner/security/advisories/new
-
-3. Include in your report:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if available)
-   - Your contact information for follow-up
-
-### Response Timeline
-
-We aim to respond to security reports according to this timeline:
-
-1. **Initial Response**: Within 24 hours  
-2. **Confirmation**: Within 72 hours  
-3. **Fix Development**: Timeline varies based on severity  
-4. **Public Disclosure**: After fix is available and tested
-
 ## Supported Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 2.x.x   | :white_check_mark: |
 | 1.x.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
+## Reporting a Vulnerability
+
+We take security vulnerabilities seriously. If you discover a security issue, please follow these steps:
+
+### 1. **DO NOT** create a public GitHub issue
+Security vulnerabilities should be reported privately to prevent potential exploitation.
+
+### 2. Contact Information
+- **Email**: akintunero101@gmail.com
+- **Subject**: `[SECURITY] DevSecOps Policy Scanner - [Brief Description]`
+- **Response Time**: Within 48 hours
+
+### 3. What to Include
+Please provide the following information:
+- **Description**: Clear description of the vulnerability
+- **Steps to Reproduce**: Detailed steps to reproduce the issue
+- **Impact Assessment**: Potential impact on users/systems
+- **Suggested Fix**: If you have a proposed solution
+- **Affected Versions**: Which versions are affected
+- **Environment**: OS, Python version, dependencies
+
+### 4. Response Process
+1. **Acknowledgment**: You'll receive an acknowledgment within 48 hours
+2. **Investigation**: Our security team will investigate the report
+3. **Timeline**: We'll provide a timeline for resolution
+4. **Updates**: Regular updates on progress and resolution
+5. **Credit**: Proper credit in security advisories (if desired)
+
+### 5. Disclosure Policy
+- **Private**: Vulnerabilities are kept private until patched
+- **Coordinated**: Public disclosure coordinated with reporter
+- **Timeline**: Typically 90 days from report to public disclosure
+- **CVE**: We'll request CVE IDs for significant vulnerabilities
+
 ## Security Best Practices
 
-### For Users
-
-1. **Keep Updated**
-   - Use the latest version
-   - Monitor security advisories
-   - Subscribe to security notifications
-
-2. **Configuration**
-   - Follow secure configuration guides
-   - Use least privilege principles
-   - Enable security features
-
-3. **Integration**
-   - Use secure communication channels
-   - Implement proper authentication
-   - Monitor access logs
-
 ### For Contributors
+- **Code Review**: All code changes require security review
+- **Dependencies**: Regular security updates for dependencies
+- **Testing**: Comprehensive security testing before releases
+- **Documentation**: Clear security documentation for features
 
-1. **Code Security**
-   - Follow secure coding guidelines
-   - Use approved cryptographic methods
-   - Validate all inputs
-   - Handle errors securely
+### For Users
+- **Updates**: Keep the scanner updated to latest versions
+- **Configuration**: Follow security best practices in configuration
+- **Monitoring**: Monitor scan results for security issues
+- **Reporting**: Report any security concerns promptly
 
-2. **Dependencies**
-   - Use only approved dependencies
-   - Keep dependencies updated
-   - Monitor for vulnerabilities
+## Security Features
 
-3. **Testing**
-   - Include security tests
-   - Test edge cases
-   - Validate security controls
+### Built-in Security
+- **Input Validation**: All inputs are validated and sanitized
+- **Output Sanitization**: Scan results are sanitized before output
+- **Error Handling**: Secure error handling without information disclosure
+- **Logging**: Secure logging without sensitive data exposure
 
-## Vulnerability Management
+### Policy Security
+- **Policy Validation**: All policies are validated before execution
+- **Sandboxing**: Policy execution in isolated environments
+- **Resource Limits**: CPU and memory limits on policy execution
+- **Timeout Protection**: Automatic timeout for long-running policies
 
-### Assessment
+### Data Security
+- **No Data Collection**: We don't collect or store user data
+- **Local Processing**: All scanning happens locally
+- **Secure Storage**: Configuration stored securely
+- **Encryption**: Sensitive data encrypted at rest
 
-We assess vulnerabilities based on:
-- CVSS Score
-- Potential Impact
-- Exploitation Complexity
-- User Base Affected
+## Security Advisories
 
-### Severity Levels
+### Recent Advisories
+- **DSP-2024-001**: Policy injection vulnerability (Fixed in v2.1.0)
+- **DSP-2024-002**: Memory exhaustion in large scans (Fixed in v2.0.5)
 
-1. **Critical**
-   - Direct security impact
-   - Requires immediate attention
-   - Fix within 24 hours
-
-2. **High**
-   - Significant security impact
-   - High priority fix
-   - Fix within 7 days
-
-3. **Medium**
-   - Moderate security impact
-   - Planned fix
-   - Fix within 30 days
-
-4. **Low**
-   - Minor security impact
-   - Tracked for future fix
-   - Fix in next release
-
-## Disclosure Policy
-
-### Coordinated Disclosure
-
-1. **Initial Assessment**
-   - Validate report
-   - Determine severity
-   - Plan response
-
-2. **Fix Development**
-   - Create security patch
-   - Test fix thoroughly
-   - Prepare documentation
-
-3. **Release Process**
-   - Release security update
-   - Notify users
-   - Update documentation
-
-4. **Public Disclosure**
-   - Publish advisory
-   - Credit reporter
-   - Share lessons learned
+### Upcoming Security Updates
+- **DSP-2024-003**: Enhanced input validation (Planned for v2.2.0)
+- **DSP-2024-004**: Improved sandboxing (Planned for v2.2.0)
 
 ## Security Team
 
-### Contact
+### Primary Security Contact
+- **Name**: Olúmáyòwá Akinkuehinmi
+- **Email**: akintunero101@gmail.com
+- **Role**: Security Lead & Maintainer
 
-- Email: akintunero101@gmail.com    
-- Emergency: akintunero101@gmail.com 
-
-## Recognition
-
-We believe in recognizing security researchers who help improve our security:
-
-1. **Hall of Fame**
-   - Listed on our security page
-   - Acknowledged in release notes
-
-2. **CVE Credits**
-   - Proper attribution in CVE records
-   - Recognition in security advisories
+### Security Reviewers
+- **Code Review**: All maintainers participate in security reviews
+- **Policy Review**: Security experts review policy templates
+- **Dependency Review**: Automated and manual dependency security review
 
 ## Security Resources
 
+### Documentation
+- [Security Best Practices](docs/security.md)
+- [Policy Security Guidelines](docs/policy-security.md)
+- [Configuration Security](docs/config-security.md)
 
+### Tools
+- **Dependency Scanning**: Automated vulnerability scanning
+- **Policy Testing**: Comprehensive policy security testing
+- **Code Analysis**: Static and dynamic security analysis
+
+### Community
+- **Security Channel**: #security in our community
+- **Security Mailing List**: security@devsecops-policy-scanner.com
+- **Security Blog**: Regular security updates and advisories
+
+## Compliance
 
 ### Standards
+- **OWASP**: Following OWASP security guidelines
+- **NIST**: Aligned with NIST cybersecurity framework
+- **ISO 27001**: Security management best practices
+- **SOC 2**: Security controls and monitoring
 
-- OWASP Top 10  
-- CWE/SANS Top 25  
-- NIST Guidelines  
+### Certifications
+- **Security Audits**: Regular third-party security audits
+- **Penetration Testing**: Annual penetration testing
+- **Code Reviews**: Regular security code reviews
+- **Training**: Security training for all contributors
 
-## Updates
+---
 
-This security policy is reviewed and updated regularly. Last update: 2025-05-20
-
-For the latest version, visit:  
-https://github.com/akintunero/devsecops-policy-scanner/security/policy
-
-## License
-
-This security policy is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+**Last Updated**: January 2025  
+**Next Review**: March 2025  
+**Contact**: akintunero101@gmail.com

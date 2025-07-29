@@ -1,171 +1,396 @@
-# Contributing to devsecops-policy-scanner
+# Contributing to DevSecOps Policy Scanner
 
-First off, thank you for considering contributing to devsecops-policy-scanner! It's people like you that make this project such a great tool.
+Thank you for your interest in contributing to the DevSecOps Policy Scanner! This document provides guidelines and information for contributors.
 
-## Code of Conduct
+## Table of Contents
 
-This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+- [Getting Started](#getting-started)
+- [Development Setup](#development-setup)
+- [Code Standards](#code-standards)
+- [Testing Guidelines](#testing-guidelines)
+- [Documentation](#documentation)
+- [Security](#security)
+- [Pull Request Process](#pull-request-process)
+- [Release Process](#release-process)
+- [Community](#community)
 
-## How Can I Contribute?
+## Getting Started
 
-### Reporting Bugs
+### Prerequisites
 
-Before creating a bug report, please check the issue list to avoid duplicates. When creating a bug report, please include as many details as possible:
+- Python 3.9+ (3.11 recommended)
+- Git
+- Docker (optional, for containerized development)
+- Make (optional, for using Makefile commands)
 
-- Use a clear and descriptive title
-- Describe the exact steps to reproduce the problem
-- Provide specific examples demonstrating the issue
-- Describe the observed behavior after following the steps
-- Explain the expected behavior and why
-- Include screenshots if applicable
-- Provide your environment details (OS, Python version, etc.)
+### Quick Start
 
-### Suggesting Enhancements
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/akintunero/devsecops-policy-scanner.git
+   cd devsecops-policy-scanner
+   ```
 
-Enhancement suggestions are tracked as GitHub issues. When suggesting an enhancement, please include:
+2. **Set up development environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   pip install -e .
+   ```
 
-- A clear and descriptive title
-- A step-by-step description of the proposed enhancement
-- Examples demonstrating the enhancement
-- Describe current behavior and expected behavior
-- Explain why this enhancement would be useful
-- Mention other tools or applications where this enhancement exists
+3. **Run tests**
+   ```bash
+   pytest tests/ -v
+   ```
 
-### Pull Requests
+## Development Setup
 
-- Fill in the required pull request template
-- Do not include issue numbers in the PR title
-- Include screenshots or GIFs to demonstrate changes where applicable
-- Follow Python style guides
-- Include well-structured and thoughtful tests
-- Document new code clearly
-- End all files with a newline
+### Local Development
 
-## Development Process
+1. **Clone your fork**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/devsecops-policy-scanner.git
+   cd devsecops-policy-scanner
+   ```
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`poetry run pytest`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push your branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+2. **Add upstream remote**
+   ```bash
+   git remote add upstream https://github.com/akintunero/devsecops-policy-scanner.git
+   ```
 
-## Setting Up Development Environment
+3. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+4. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   pip install -e .
+   ```
+
+### Docker Development
+
+1. **Build development image**
+   ```bash
+   docker build -t devsecops-policy-scanner:dev --target development .
+   ```
+
+2. **Run development container**
+   ```bash
+   docker run -it --rm -v $(pwd):/app devsecops-policy-scanner:dev
+   ```
+
+3. **Use Docker Compose**
+   ```bash
+   docker-compose up dsp-scanner-dev
+   ```
+
+## Code Standards
+
+### Python Style Guide
+
+We follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) with some modifications:
+
+- **Line length**: 120 characters maximum
+- **Import order**: Standard library, third-party, local imports
+- **Docstrings**: Google style docstrings
+- **Type hints**: Required for all public functions
+
+### Code Formatting
+
+We use automated tools for code formatting:
 
 ```bash
-# Clone your fork
-git clone https://github.com/akintunero/devsecops-policy-scanner.git
-cd devsecops-policy-scanner
+# Format code with Black
+black src/ tests/
 
-# Install poetry
-curl -sSL https://install.python-poetry.org | python3 -
+# Sort imports with isort
+isort src/ tests/
 
-# Install dependencies
-poetry install
+# Check code style with flake8
+flake8 src/ tests/ --max-line-length=120
 
-# Setup pre-commit hooks
-poetry run pre-commit install
-
+# Type checking with MyPy
+mypy src/ --ignore-missing-imports
 ```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks for automatic formatting:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### Code Quality Tools
+
+- **Black**: Code formatting
+- **isort**: Import sorting
+- **flake8**: Linting
+- **MyPy**: Type checking
+- **Pylint**: Additional linting
+- **Bandit**: Security linting
+
+## Testing Guidelines
 
 ### Running Tests
 
 ```bash
 # Run all tests
-poetry run pytest
+pytest tests/ -v
 
-# Run tests with coverage
-poetry run pytest --cov=dsp_scanner
+# Run with coverage
+pytest tests/ -v --cov=src --cov-report=html
 
 # Run specific test file
-poetry run pytest tests/test_specific.py
+pytest tests/test_scanner.py -v
+
+# Run specific test function
+pytest tests/test_scanner.py::test_scan_policy -v
 ```
 
-### Code Style
-
-We use the following tools to maintain code quality:
-
-* black for code formatting
-* flake8 for style guide enforcement
-* mypy for static type checking
-* isort for import sorting
-
-```bash
-# Format code
-poetry run black .
-
-# Check style
-poetry run flake8
-
-# Check types
-poetry run mypy src/
-
-# Sort imports
-poetry run isort .
-```
-
-## Project Structure
+### Test Structure
 
 ```
-devsecops-policy-scanner/
-├── src/
-│   └── dsp_scanner/
-│       ├── core/          # Core functionality
-│       ├── scanners/      # Platform-specific scanners
-│       ├── ml/            # Machine learning components
-│       └── utils/         # Utility functions
-├── tests/                 # Test suite
-├── docs/                  # Documentation
-└── examples/              # Example configurations
-
+tests/
+├── unit/           # Unit tests
+├── integration/    # Integration tests
+├── performance/    # Performance tests
+├── security/       # Security tests
+└── conftest.py     # Test configuration
 ```
 
-## Writing Documentation
+### Writing Tests
 
-* Use docstrings for all public modules, functions, classes, and methods
-* Follow Google style for docstrings
-* Update README.md with any new features
-* Add examples for new features
+1. **Test naming**: `test_<function_name>_<scenario>`
+2. **Use fixtures**: Reuse common test data
+3. **Mock external dependencies**: Don't rely on external services
+4. **Test edge cases**: Include error conditions
+5. **Maintain test isolation**: Each test should be independent
 
-## Creating a New Scanner
-
-1. Create a new file in `src/dsp_scanner/scanners/`
-2. Implement the scanner interface
-3. Add tests in `tests/scanners/`
-4. Update documentation
-5. Add examples
-
-Example scanner structure:
+### Example Test
 
 ```python
-from typing import List, Optional
-from pathlib import Path
+import pytest
+from src.dsp_scanner.core.scanner import PolicyScanner
 
-from dsp_scanner.core.results import Finding, ScanResult
-from dsp_scanner.core.policy import Policy
+def test_scan_policy_valid_input():
+    """Test scanning a valid policy file."""
+    scanner = PolicyScanner()
+    result = scanner.scan("tests/fixtures/valid_policy.yaml")
+    
+    assert result.is_valid
+    assert len(result.violations) == 0
+    assert result.score >= 0.8
 
-class NewScanner:
-    async def scan(
-        self,
-        path: Path,
-        policies: Optional[List[Policy]] = None
-    ) -> ScanResult:
-        # Implementation
-        pass
+def test_scan_policy_invalid_input():
+    """Test scanning an invalid policy file."""
+    scanner = PolicyScanner()
+    
+    with pytest.raises(ValueError):
+        scanner.scan("tests/fixtures/invalid_policy.yaml")
 ```
+
+## Documentation
+
+### Documentation Standards
+
+- **README.md**: Project overview and quick start
+- **docs/**: Detailed documentation
+- **Inline comments**: Explain complex logic
+- **Docstrings**: Google style for all public functions
+- **Type hints**: Required for all public APIs
+
+### Building Documentation
+
+```bash
+# Install documentation dependencies
+pip install sphinx sphinx-rtd-theme
+
+# Build documentation
+sphinx-build -b html docs/ docs/_build/html
+
+# Serve documentation locally
+python -m http.server 8000 -d docs/_build/html
+```
+
+### Documentation Structure
+
+```
+docs/
+├── api/              # API documentation
+├── guides/           # User guides
+├── development/      # Developer documentation
+├── security/         # Security documentation
+└── index.rst         # Main documentation index
+```
+
+## Security
+
+### Security Guidelines
+
+1. **Never commit secrets**: Use environment variables or secure storage
+2. **Validate inputs**: Always validate and sanitize user inputs
+3. **Use secure defaults**: Implement secure-by-default configurations
+4. **Follow OWASP guidelines**: Adhere to OWASP security best practices
+5. **Report vulnerabilities**: Use our security policy for vulnerability reports
+
+### Security Testing
+
+```bash
+# Run security scans
+bandit -r src/ -f json -o bandit-report.json
+safety check --json --output safety-report.json
+
+# Run vulnerability scans
+pip-audit --json --output pip-audit-report.json
+```
+
+### Security Review Process
+
+1. **Code review**: All code changes require security review
+2. **Dependency review**: Automated dependency vulnerability scanning
+3. **Security testing**: Automated security tests in CI/CD
+4. **Penetration testing**: Regular security assessments
+
+## Pull Request Process
+
+### Before Submitting
+
+1. **Update documentation**: Ensure documentation is up to date
+2. **Add tests**: Include tests for new functionality
+3. **Run tests**: Ensure all tests pass locally
+4. **Check formatting**: Run code formatting tools
+5. **Security review**: Ensure no security issues
+
+### Pull Request Template
+
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] All tests pass locally
+
+## Documentation
+- [ ] README updated
+- [ ] API documentation updated
+- [ ] Code comments added
+
+## Security
+- [ ] Security implications considered
+- [ ] No security vulnerabilities introduced
+- [ ] Security tests added if applicable
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] Tests added/updated
+- [ ] Security review completed
+```
+
+### Review Process
+
+1. **Automated checks**: CI/CD pipeline runs automatically
+2. **Code review**: At least one maintainer review required
+3. **Security review**: Security team review for sensitive changes
+4. **Documentation review**: Ensure documentation is complete
+5. **Final approval**: Maintainer approval for merge
 
 ## Release Process
 
-1. Update version in pyproject.toml
-2. Update CHANGELOG.md
-3. Create a new tag
-4. Push tag to trigger release workflow
+### Versioning
 
-## Questions?
+We follow [Semantic Versioning](https://semver.org/):
 
-Feel free to open an issue with your question or contact the maintainers directly.
+- **MAJOR**: Incompatible API changes
+- **MINOR**: Backward-compatible features
+- **PATCH**: Backward-compatible bug fixes
 
-## License
+### Release Checklist
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+- [ ] All tests passing
+- [ ] Documentation updated
+- [ ] Security scan clean
+- [ ] Performance benchmarks acceptable
+- [ ] Release notes prepared
+- [ ] Docker images built and tested
+- [ ] GitHub release created
+
+### Release Steps
+
+1. **Update version**: Update version in setup.py and __init__.py
+2. **Update changelog**: Add release notes to CHANGELOG.md
+3. **Create release branch**: `git checkout -b release/vX.Y.Z`
+4. **Run full test suite**: Ensure all tests pass
+5. **Create GitHub release**: Tag and release on GitHub
+6. **Deploy**: Deploy to PyPI and Docker Hub
+
+## Community
+
+### Communication Channels
+
+- **GitHub Issues**: Bug reports and feature requests
+- **GitHub Discussions**: General questions and discussions
+- **Security**: akintunero101@gmail.com for security issues
+- **Email**: akintunero101@gmail.com for general inquiries
+
+### Community Guidelines
+
+- **Be respectful**: Follow our Code of Conduct
+- **Be helpful**: Help others learn and grow
+- **Be patient**: Understand different experience levels
+- **Be constructive**: Provide helpful feedback
+- **Be collaborative**: Work together toward common goals
+
+### Recognition
+
+We recognize contributors in several ways:
+
+- **Contributor profiles**: Featured on our website
+- **Release notes**: Acknowledged in release announcements
+- **Hall of Fame**: Listed in project documentation
+- **Special thanks**: Recognized for significant contributions
+
+## Getting Help
+
+### Common Issues
+
+1. **Installation problems**: Check Python version and dependencies
+2. **Test failures**: Ensure all dependencies are installed
+3. **Documentation issues**: Check if documentation is up to date
+4. **Security concerns**: Follow our security policy
+
+### Resources
+
+- **Documentation**: [Project Documentation](docs/)
+- **Issues**: [GitHub Issues](https://github.com/akintunero/devsecops-policy-scanner/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/akintunero/devsecops-policy-scanner/discussions)
+- **Security**: [Security Policy](SECURITY.md)
+
+### Contact
+
+- **General**: akintunero101@gmail.com
+- **Security**: akintunero101@gmail.com
+- **Maintainer**: Olúmáyòwá Akinkuehinmi (akintunero101@gmail.com)
+
+---
+
+**Thank you for contributing to DevSecOps Policy Scanner!**
+
+**Last Updated**: January 2025  
+**Maintainer**: Olúmáyòwá Akinkuehinmi (akintunero101@gmail.com)

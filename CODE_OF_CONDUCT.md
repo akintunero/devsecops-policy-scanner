@@ -181,11 +181,6 @@ We believe in recognizing positive contributions to our community:
 - **Security Researchers**: Those who help improve our security
 - **Mentors**: Those who help others learn and grow
 
-### Recognition Methods
-- **Hall of Fame**: Listed on our project website
-- **Release Notes**: Acknowledged in release announcements
-- **Contributor Profiles**: Featured contributor spotlights
-- **Special Thanks**: Recognized in project documentation
 
 ## Resources
 

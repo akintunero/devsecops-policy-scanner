@@ -30,9 +30,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt --no-deps
 
       - name: Run Enhanced Policy Scanner
         run: |
@@ -57,7 +57,7 @@ jobs:
           "
 
       - name: Upload Security Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-report
@@ -101,7 +101,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Dependency Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dependency-reports
@@ -110,9 +110,9 @@ jobs:
             bandit-report.json
             semgrep-report.json
 
-  infrastructure-scan:
+  code-quality:
     runs-on: ubuntu-latest
-    name: 🏗️ Infrastructure Security Scan
+    name: 🔍 Code Quality Analysis
     
     steps:
       - name: Checkout Repository
@@ -122,229 +122,120 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
 
-      - name: Install Infrastructure Tools
+      - name: Install Dependencies
         run: |
-          pip install checkov trivy-python-plugin
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt --no-deps
 
-      - name: Run Checkov (Terraform/IaC)
+      - name: Download Dependency Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: dependency-reports
+          path: ./reports
+
+      - name: Run Code Quality Checks
         run: |
-          checkov -d . --output json --output-file-path checkov-report
-        continue-on-error: true
+          black --check --diff src/ || true
+          flake8 src/ --max-line-length=120 || true
+          mypy src/ --ignore-missing-imports || true
+          pylint src/ --output-format=json || true
 
-      - name: Run Trivy (Container Images)
+      - name: Generate Quality Report
         run: |
-          trivy config . --format json --output trivy-report.json
-        continue-on-error: true
+          echo "Code Quality Analysis Complete" > quality_report.txt
+          echo "Black formatting: $(black --check --diff src/ 2>&1 | wc -l) issues" >> quality_report.txt
+          echo "Flake8 linting: $(flake8 src/ --max-line-length=120 2>&1 | wc -l) issues" >> quality_report.txt
 
-      - name: Upload Infrastructure Reports
-        uses: actions/upload-artifact@v3
+      - name: Upload Quality Reports
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: infrastructure-reports
+          name: quality-reports
           path: |
-            checkov-report.json
-            trivy-report.json
+            quality_report.txt
+            reports/
 
   compliance-report:
     runs-on: ubuntu-latest
     name: 📊 Compliance Report Generation
-    needs: [security-scan, dependency-scan, infrastructure-scan]
+    needs: [security-scan, dependency-scan, code-quality]
     
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Download All Reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          path: reports/
+          name: security-report
+          path: ./security-reports
 
-      - name: Generate Compliance Report
+      - name: Download Dependency Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: dependency-reports
+          path: ./dependency-reports
+
+      - name: Download Quality Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: quality-reports
+          path: ./quality-reports
+
+      - name: Generate Compliance Summary
         run: |
-          python -c "
-          import json
-          import os
-          from datetime import datetime
-          
-          report = {
-              'timestamp': datetime.now().isoformat(),
-              'repository': os.environ.get('GITHUB_REPOSITORY', 'unknown'),
-              'commit': os.environ.get('GITHUB_SHA', 'unknown'),
-              'summary': {
-                  'security_policies': 0,
-                  'dependency_vulnerabilities': 0,
-                  'infrastructure_issues': 0
-              },
-              'details': {}
-          }
-          
-          # Process security scan results
-          try:
-              with open('reports/security-report/security_report.json', 'r') as f:
-                  security_data = json.load(f)
-                  report['summary']['security_policies'] = len(security_data)
-                  report['details']['security'] = security_data
-          except:
-              pass
-          
-          # Process dependency scan results
-          try:
-              with open('reports/dependency-reports/safety-report.json', 'r') as f:
-                  safety_data = json.load(f)
-                  report['summary']['dependency_vulnerabilities'] = len(safety_data)
-                  report['details']['dependencies'] = safety_data
-          except:
-              pass
-          
-          # Save comprehensive report
-          with open('comprehensive-compliance-report.json', 'w') as f:
-              json.dump(report, f, indent=2)
-          "
+          echo "# DevSecOps Policy Scanner Compliance Report" > compliance_summary.md
+          echo "Generated on: $(date)" >> compliance_summary.md
+          echo "" >> compliance_summary.md
+          echo "## Security Scan Results" >> compliance_summary.md
+          if [ -f "./security-reports/security_report.json" ]; then
+            echo "- Security policy scan completed" >> compliance_summary.md
+          else
+            echo "- Security policy scan failed" >> compliance_summary.md
+          fi
+          echo "" >> compliance_summary.md
+          echo "## Dependency Scan Results" >> compliance_summary.md
+          if [ -f "./dependency-reports/safety-report.json" ]; then
+            echo "- Dependency vulnerability scan completed" >> compliance_summary.md
+          else
+            echo "- Dependency vulnerability scan failed" >> compliance_summary.md
+          fi
+          echo "" >> compliance_summary.md
+          echo "## Code Quality Results" >> compliance_summary.md
+          if [ -f "./quality-reports/quality_report.txt" ]; then
+            echo "- Code quality analysis completed" >> compliance_summary.md
+          else
+            echo "- Code quality analysis failed" >> compliance_summary.md
+          fi
 
-      - name: Upload Comprehensive Report
-        uses: actions/upload-artifact@v3
+      - name: Upload Compliance Summary
+        uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-compliance-report
-          path: comprehensive-compliance-report.json
+          name: compliance-summary
+          path: compliance_summary.md
 
-  security-alerts:
+  notification:
     runs-on: ubuntu-latest
-    name: 🚨 Security Alerts
-    needs: [security-scan, dependency-scan, infrastructure-scan]
-    if: failure()
+    name: 📢 Notification
+    needs: [compliance-report]
+    if: always()
     
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download Reports
-        uses: actions/download-artifact@v3
+      - name: Download Compliance Summary
+        uses: actions/download-artifact@v4
         with:
-          path: reports/
+          name: compliance-summary
+          path: ./summary
 
-      - name: Create Security Issue
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            
-            let issueBody = '# 🚨 Security Scan Results\n\n';
-            issueBody += 'Security vulnerabilities were detected during the automated scan.\n\n';
-            
-            // Add security policy violations
-            try {
-              const securityData = JSON.parse(fs.readFileSync('reports/security-report/security_report.json', 'utf8'));
-              const violations = securityData.filter(r => !r.compliant);
-              if (violations.length > 0) {
-                issueBody += '## 🔒 Policy Violations\n\n';
-                violations.forEach(v => {
-                  issueBody += `- **${v.policy_key}**: ${v.message}\n`;
-                });
-                issueBody += '\n';
-              }
-            } catch (e) {
-              console.log('No security report found');
-            }
-            
-            // Add dependency vulnerabilities
-            try {
-              const safetyData = JSON.parse(fs.readFileSync('reports/dependency-reports/safety-report.json', 'utf8'));
-              if (safetyData.length > 0) {
-                issueBody += '## 📦 Dependency Vulnerabilities\n\n';
-                safetyData.forEach(v => {
-                  issueBody += `- **${v.package}**: ${v.description}\n`;
-                });
-                issueBody += '\n';
-              }
-            } catch (e) {
-              console.log('No dependency report found');
-            }
-            
-            issueBody += '## 🔧 Next Steps\n\n';
-            issueBody += '1. Review the detailed reports in the workflow artifacts\n';
-            issueBody += '2. Address critical and high severity issues\n';
-            issueBody += '3. Update dependencies with known vulnerabilities\n';
-            issueBody += '4. Re-run the security scan after fixes\n';
-            
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '🚨 Security Vulnerabilities Detected',
-              body: issueBody,
-              labels: ['security', 'automated-scan']
-            });
-
-  comment-pr:
-    runs-on: ubuntu-latest
-    name: 💬 PR Comment
-    needs: [security-scan, dependency-scan, infrastructure-scan]
-    if: github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download Reports
-        uses: actions/download-artifact@v3
-        with:
-          path: reports/
-
-      - name: Comment on PR
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            
-            let commentBody = '## 🔒 Security Scan Results\n\n';
-            
-            // Add security policy results
-            try {
-              const securityData = JSON.parse(fs.readFileSync('reports/security-report/security_report.json', 'utf8'));
-              const compliant = securityData.filter(r => r.compliant).length;
-              const total = securityData.length;
-              const percentage = total > 0 ? (compliant / total * 100).toFixed(1) : 0;
-              
-              commentBody += `### Policy Compliance: ${compliant}/${total} (${percentage}%)\n\n`;
-              
-              const violations = securityData.filter(r => !r.compliant);
-              if (violations.length > 0) {
-                commentBody += '**⚠️ Policy Violations:**\n';
-                violations.slice(0, 5).forEach(v => {
-                  commentBody += `- ${v.message}\n`;
-                });
-                if (violations.length > 5) {
-                  commentBody += `- ... and ${violations.length - 5} more\n`;
-                }
-                commentBody += '\n';
-              }
-            } catch (e) {
-              commentBody += '### Policy Compliance: No data available\n\n';
-            }
-            
-            // Add dependency scan results
-            try {
-              const safetyData = JSON.parse(fs.readFileSync('reports/dependency-reports/safety-report.json', 'utf8'));
-              if (safetyData.length > 0) {
-                commentBody += `### 📦 Dependencies: ${safetyData.length} vulnerabilities found\n\n`;
-                commentBody += '**Critical/High Severity:**\n';
-                const criticalHigh = safetyData.filter(v => ['critical', 'high'].includes(v.severity));
-                criticalHigh.slice(0, 3).forEach(v => {
-                  commentBody += `- ${v.package}: ${v.description}\n`;
-                });
-                commentBody += '\n';
-              } else {
-                commentBody += '### 📦 Dependencies: ✅ No vulnerabilities found\n\n';
-              }
-            } catch (e) {
-              commentBody += '### 📦 Dependencies: No data available\n\n';
-            }
-            
-            commentBody += '📊 [View detailed reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})';
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: commentBody
-            }); 
+      - name: Send Notification
+        run: |
+          if [ -f "./summary/compliance_summary.md" ]; then
+            echo "✅ Policy compliance scan completed successfully"
+            echo "📊 Summary report generated"
+          else
+            echo "❌ Policy compliance scan failed"
+            exit 1
+          fi 

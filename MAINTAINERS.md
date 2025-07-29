@@ -9,28 +9,8 @@ This document lists the maintainer(s) of the DSP Scanner project. Maintainers ha
   - GitHub: [@akintunero](https://github.com/akintunero)  
   - Email: akintunero101@gmail.com  
   - Areas: Project direction, architecture, core functionality, all components  
-  - Time zone: UTC+1
 
-## Becoming a Maintainer
 
-As the sole maintainer, you are responsible for all contributions, reviews, and community support. In the future, additional maintainers may be added following this process:
-
-1. **Consistent Contributions**  
-2. **Expertise**  
-3. **Nomination** by you  
-4. **Review** and **community feedback**
-
-## Maintainer Responsibilities
-
-- Review and merge pull requests  
-- Triage and resolve issues  
-- Guide project direction and maintain code quality  
-- Provide community support and documentation  
-- Ensure security and compliance
-
-## Decision Making
-
-All decisions are made by the sole maintainer. Community input will be considered via GitHub discussions or issues.
 
 ## Communication
 

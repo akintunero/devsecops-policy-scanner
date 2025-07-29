@@ -112,7 +112,7 @@ Please provide the following information:
 
 ### Community
 - **Security Channel**: #security in our community
-- **Security Mailing List**: security@devsecops-policy-scanner.com
+- **Security Mailing List**: akintunero101@gmail.com
 - **Security Blog**: Regular security updates and advisories
 
 ## Compliance

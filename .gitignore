@@ -54,3 +54,14 @@ node_modules/
 # Ignore test reports and temporary test files
 test-results/
 .nox/
+
+# Summary files (exclude from GitHub)
+*_SUMMARY.md
+*_FIX_SUMMARY.md
+*_UPDATE_SUMMARY.md
+*_CORRECTION_SUMMARY.md
+*_DEPLOYMENT_SUMMARY.md
+*_PROJECT_SUMMARY.md
+*_WORKFLOW_FIX_SUMMARY.md
+*_DEPENDENCY_FIX_SUMMARY.md
+*_ACTIONS_FIX_SUMMARY.md

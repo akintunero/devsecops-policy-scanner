@@ -175,5 +175,5 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ---
 
 **Maintainer**: Olúmáyòwá Akinkuehinmi (akintunero101@gmail.com)  
-**Last Updated**: January 2025
+**Last Updated**: July 2025
 

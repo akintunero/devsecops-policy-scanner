@@ -189,12 +189,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Release Date | Key Features | Status |
 |---------|--------------|--------------|---------|
-| 2.1.0 | 2025-01-29 | ML-powered analysis, advanced CLI, security framework | Current |
-| 2.0.0 | 2025-01-20 | Core scanner, policy engine, comprehensive testing | Stable |
-| 1.5.0 | 2025-01-15 | Templates, reporting, APIs, web interface | Stable |
-| 1.0.0 | 2025-01-10 | Basic functionality, CLI, documentation | Stable |
+| 2.0.0 | 2025-07-29 | Core scanner, policy engine, comprehensive testing | Stable |
+| 1.5.0 | 2025-01-31 | Templates, reporting, APIs, web interface | Stable |
+| 1.0.0 | 2025-01-13 | Basic functionality, CLI, documentation | Stable |
 | 0.5.0 | 2025-01-05 | Foundation, basic scanner, configuration | Legacy |
-| 0.1.0 | 2025-01-01 | Project inception, structure, documentation | Legacy |
+| 0.1.0 | 2024-12-15 | Project inception, structure, documentation | Legacy |
 
 ## Support
 
@@ -211,5 +210,5 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ---
 
 **Maintainer**: Olúmáyòwá Akinkuehinmi (akintunero101@gmail.com)  
-**Last Updated**: January 2025
+**Last Updated**: July 2025
 

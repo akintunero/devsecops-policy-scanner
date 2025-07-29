@@ -1,0 +1,201 @@
+# OWASP Top 10 Security Policies
+# Based on OWASP Top 10 2021
+
+# A01:2021 - Broken Access Control
+- key: broken_access_control
+  value: false
+  description: "A01:2021 - Broken Access Control: Implement proper access controls"
+  severity: "critical"
+  category: "access_control"
+  owasp_control: "A01:2021"
+
+- key: jwt_token_validation
+  value: true
+  description: "JWT tokens should be properly validated"
+  severity: "high"
+  category: "authentication"
+  owasp_control: "A01:2021"
+
+- key: api_rate_limiting
+  value: true
+  description: "API rate limiting should be implemented"
+  severity: "medium"
+  category: "access_control"
+  owasp_control: "A01:2021"
+
+# A02:2021 - Cryptographic Failures
+- key: tls_version_minimum
+  value: "1.2"
+  description: "Minimum TLS version should be 1.2 or higher"
+  severity: "critical"
+  category: "encryption"
+  owasp_control: "A02:2021"
+
+- key: weak_crypto_algorithms
+  value: false
+  description: "Weak cryptographic algorithms should not be used"
+  severity: "critical"
+  category: "encryption"
+  owasp_control: "A02:2021"
+
+- key: secrets_in_code
+  value: false
+  description: "Secrets should not be hardcoded in source code"
+  severity: "critical"
+  category: "secrets"
+  owasp_control: "A02:2021"
+
+# A03:2021 - Injection
+- key: sql_injection_protection
+  value: true
+  description: "SQL injection protection should be implemented"
+  severity: "critical"
+  category: "injection"
+  owasp_control: "A03:2021"
+
+- key: input_validation
+  value: true
+  description: "Input validation should be implemented"
+  severity: "high"
+  category: "input_validation"
+  owasp_control: "A03:2021"
+
+- key: parameterized_queries
+  value: true
+  description: "Parameterized queries should be used"
+  severity: "high"
+  category: "injection"
+  owasp_control: "A03:2021"
+
+# A04:2021 - Insecure Design
+- key: threat_modeling
+  value: true
+  description: "Threat modeling should be performed during design"
+  severity: "high"
+  category: "design"
+  owasp_control: "A04:2021"
+
+- key: secure_by_default
+  value: true
+  description: "Secure by default configuration should be used"
+  severity: "medium"
+  category: "design"
+  owasp_control: "A04:2021"
+
+# A05:2021 - Security Misconfiguration
+- key: default_passwords
+  value: false
+  description: "Default passwords should not be used"
+  severity: "critical"
+  category: "configuration"
+  owasp_control: "A05:2021"
+
+- key: security_headers
+  value: true
+  description: "Security headers should be configured"
+  severity: "medium"
+  category: "configuration"
+  owasp_control: "A05:2021"
+
+- key: error_messages_disclosure
+  value: false
+  description: "Sensitive information should not be disclosed in error messages"
+  severity: "medium"
+  category: "configuration"
+  owasp_control: "A05:2021"
+
+# A06:2021 - Vulnerable and Outdated Components
+- key: dependency_scanning
+  value: true
+  description: "Dependency vulnerability scanning should be enabled"
+  severity: "high"
+  category: "dependencies"
+  owasp_control: "A06:2021"
+
+- key: outdated_dependencies
+  value: false
+  description: "Outdated dependencies should not be used"
+  severity: "high"
+  category: "dependencies"
+  owasp_control: "A06:2021"
+
+- key: component_inventory
+  value: true
+  description: "Component inventory should be maintained"
+  severity: "medium"
+  category: "dependencies"
+  owasp_control: "A06:2021"
+
+# A07:2021 - Identification and Authentication Failures
+- key: multi_factor_authentication
+  value: true
+  description: "Multi-factor authentication should be implemented"
+  severity: "high"
+  category: "authentication"
+  owasp_control: "A07:2021"
+
+- key: password_policy
+  value: true
+  description: "Strong password policy should be enforced"
+  severity: "high"
+  category: "authentication"
+  owasp_control: "A07:2021"
+
+- key: session_management
+  value: true
+  description: "Secure session management should be implemented"
+  severity: "medium"
+  category: "authentication"
+  owasp_control: "A07:2021"
+
+# A08:2021 - Software and Data Integrity Failures
+- key: code_signing
+  value: true
+  description: "Code signing should be implemented"
+  severity: "high"
+  category: "integrity"
+  owasp_control: "A08:2021"
+
+- key: integrity_checks
+  value: true
+  description: "Data integrity checks should be implemented"
+  severity: "medium"
+  category: "integrity"
+  owasp_control: "A08:2021"
+
+# A09:2021 - Security Logging and Monitoring Failures
+- key: audit_logging
+  value: true
+  description: "Comprehensive audit logging should be enabled"
+  severity: "medium"
+  category: "logging"
+  owasp_control: "A09:2021"
+
+- key: log_monitoring
+  value: true
+  description: "Log monitoring and alerting should be configured"
+  severity: "medium"
+  category: "logging"
+  owasp_control: "A09:2021"
+
+- key: log_retention
+  value: true
+  description: "Appropriate log retention policies should be in place"
+  severity: "low"
+  category: "logging"
+  owasp_control: "A09:2021"
+
+# A10:2021 - Server-Side Request Forgery (SSRF)
+- key: ssrf_protection
+  value: true
+  description: "SSRF protection should be implemented"
+  severity: "high"
+  category: "ssrf"
+  owasp_control: "A10:2021"
+
+- key: url_validation
+  value: true
+  description: "URL validation should be implemented"
+  severity: "medium"
+  category: "ssrf"
+  owasp_control: "A10:2021" 

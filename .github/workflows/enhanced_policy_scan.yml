@@ -1,0 +1,350 @@
+name: Enhanced Policy Compliance Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * 1'  # Run weekly on Mondays at 2 AM
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    name: 🔒 Security Policy Scan
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for better scanning
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run Enhanced Policy Scanner
+        run: |
+          python src/enhanced_cli.py scan . --format json --output security_report
+        continue-on-error: true
+
+      - name: Run Advanced Security Scanner
+        run: |
+          python src/advanced_scanner.py
+        continue-on-error: true
+
+      - name: Generate Security Summary
+        run: |
+          python -c "
+          import json
+          try:
+              with open('security_report.json', 'r') as f:
+                  data = json.load(f)
+              print(f'Policy Compliance: {len([r for r in data if r[\"compliant\"]])}/{len(data)} policies passed')
+          except:
+              print('No policy report found')
+          "
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-report
+          path: |
+            security_report.json
+            security_report.html
+            *.json
+            *.html
+
+  dependency-scan:
+    runs-on: ubuntu-latest
+    name: 📦 Dependency Vulnerability Scan
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Security Tools
+        run: |
+          pip install safety bandit semgrep
+
+      - name: Run Safety Check
+        run: |
+          safety check --json --output safety-report.json
+        continue-on-error: true
+
+      - name: Run Bandit Security Scan
+        run: |
+          bandit -r . -f json -o bandit-report.json
+        continue-on-error: true
+
+      - name: Run Semgrep
+        run: |
+          semgrep ci --json --output semgrep-report.json
+        continue-on-error: true
+
+      - name: Upload Dependency Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dependency-reports
+          path: |
+            safety-report.json
+            bandit-report.json
+            semgrep-report.json
+
+  infrastructure-scan:
+    runs-on: ubuntu-latest
+    name: 🏗️ Infrastructure Security Scan
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Infrastructure Tools
+        run: |
+          pip install checkov trivy-python-plugin
+
+      - name: Run Checkov (Terraform/IaC)
+        run: |
+          checkov -d . --output json --output-file-path checkov-report
+        continue-on-error: true
+
+      - name: Run Trivy (Container Images)
+        run: |
+          trivy config . --format json --output trivy-report.json
+        continue-on-error: true
+
+      - name: Upload Infrastructure Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: infrastructure-reports
+          path: |
+            checkov-report.json
+            trivy-report.json
+
+  compliance-report:
+    runs-on: ubuntu-latest
+    name: 📊 Compliance Report Generation
+    needs: [security-scan, dependency-scan, infrastructure-scan]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Reports
+        uses: actions/download-artifact@v3
+        with:
+          path: reports/
+
+      - name: Generate Compliance Report
+        run: |
+          python -c "
+          import json
+          import os
+          from datetime import datetime
+          
+          report = {
+              'timestamp': datetime.now().isoformat(),
+              'repository': os.environ.get('GITHUB_REPOSITORY', 'unknown'),
+              'commit': os.environ.get('GITHUB_SHA', 'unknown'),
+              'summary': {
+                  'security_policies': 0,
+                  'dependency_vulnerabilities': 0,
+                  'infrastructure_issues': 0
+              },
+              'details': {}
+          }
+          
+          # Process security scan results
+          try:
+              with open('reports/security-report/security_report.json', 'r') as f:
+                  security_data = json.load(f)
+                  report['summary']['security_policies'] = len(security_data)
+                  report['details']['security'] = security_data
+          except:
+              pass
+          
+          # Process dependency scan results
+          try:
+              with open('reports/dependency-reports/safety-report.json', 'r') as f:
+                  safety_data = json.load(f)
+                  report['summary']['dependency_vulnerabilities'] = len(safety_data)
+                  report['details']['dependencies'] = safety_data
+          except:
+              pass
+          
+          # Save comprehensive report
+          with open('comprehensive-compliance-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          "
+
+      - name: Upload Comprehensive Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: comprehensive-compliance-report
+          path: comprehensive-compliance-report.json
+
+  security-alerts:
+    runs-on: ubuntu-latest
+    name: 🚨 Security Alerts
+    needs: [security-scan, dependency-scan, infrastructure-scan]
+    if: failure()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Reports
+        uses: actions/download-artifact@v3
+        with:
+          path: reports/
+
+      - name: Create Security Issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let issueBody = '# 🚨 Security Scan Results\n\n';
+            issueBody += 'Security vulnerabilities were detected during the automated scan.\n\n';
+            
+            // Add security policy violations
+            try {
+              const securityData = JSON.parse(fs.readFileSync('reports/security-report/security_report.json', 'utf8'));
+              const violations = securityData.filter(r => !r.compliant);
+              if (violations.length > 0) {
+                issueBody += '## 🔒 Policy Violations\n\n';
+                violations.forEach(v => {
+                  issueBody += `- **${v.policy_key}**: ${v.message}\n`;
+                });
+                issueBody += '\n';
+              }
+            } catch (e) {
+              console.log('No security report found');
+            }
+            
+            // Add dependency vulnerabilities
+            try {
+              const safetyData = JSON.parse(fs.readFileSync('reports/dependency-reports/safety-report.json', 'utf8'));
+              if (safetyData.length > 0) {
+                issueBody += '## 📦 Dependency Vulnerabilities\n\n';
+                safetyData.forEach(v => {
+                  issueBody += `- **${v.package}**: ${v.description}\n`;
+                });
+                issueBody += '\n';
+              }
+            } catch (e) {
+              console.log('No dependency report found');
+            }
+            
+            issueBody += '## 🔧 Next Steps\n\n';
+            issueBody += '1. Review the detailed reports in the workflow artifacts\n';
+            issueBody += '2. Address critical and high severity issues\n';
+            issueBody += '3. Update dependencies with known vulnerabilities\n';
+            issueBody += '4. Re-run the security scan after fixes\n';
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Security Vulnerabilities Detected',
+              body: issueBody,
+              labels: ['security', 'automated-scan']
+            });
+
+  comment-pr:
+    runs-on: ubuntu-latest
+    name: 💬 PR Comment
+    needs: [security-scan, dependency-scan, infrastructure-scan]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Reports
+        uses: actions/download-artifact@v3
+        with:
+          path: reports/
+
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let commentBody = '## 🔒 Security Scan Results\n\n';
+            
+            // Add security policy results
+            try {
+              const securityData = JSON.parse(fs.readFileSync('reports/security-report/security_report.json', 'utf8'));
+              const compliant = securityData.filter(r => r.compliant).length;
+              const total = securityData.length;
+              const percentage = total > 0 ? (compliant / total * 100).toFixed(1) : 0;
+              
+              commentBody += `### Policy Compliance: ${compliant}/${total} (${percentage}%)\n\n`;
+              
+              const violations = securityData.filter(r => !r.compliant);
+              if (violations.length > 0) {
+                commentBody += '**⚠️ Policy Violations:**\n';
+                violations.slice(0, 5).forEach(v => {
+                  commentBody += `- ${v.message}\n`;
+                });
+                if (violations.length > 5) {
+                  commentBody += `- ... and ${violations.length - 5} more\n`;
+                }
+                commentBody += '\n';
+              }
+            } catch (e) {
+              commentBody += '### Policy Compliance: No data available\n\n';
+            }
+            
+            // Add dependency scan results
+            try {
+              const safetyData = JSON.parse(fs.readFileSync('reports/dependency-reports/safety-report.json', 'utf8'));
+              if (safetyData.length > 0) {
+                commentBody += `### 📦 Dependencies: ${safetyData.length} vulnerabilities found\n\n`;
+                commentBody += '**Critical/High Severity:**\n';
+                const criticalHigh = safetyData.filter(v => ['critical', 'high'].includes(v.severity));
+                criticalHigh.slice(0, 3).forEach(v => {
+                  commentBody += `- ${v.package}: ${v.description}\n`;
+                });
+                commentBody += '\n';
+              } else {
+                commentBody += '### 📦 Dependencies: ✅ No vulnerabilities found\n\n';
+              }
+            } catch (e) {
+              commentBody += '### 📦 Dependencies: No data available\n\n';
+            }
+            
+            commentBody += '📊 [View detailed reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            }); 

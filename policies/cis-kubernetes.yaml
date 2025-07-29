@@ -1,0 +1,134 @@
+# CIS Kubernetes Benchmark Policies
+# Based on CIS Kubernetes Benchmark v1.8
+
+# Control Plane Node Policies
+- key: control_plane_anonymous_auth
+  value: false
+  description: "Control Plane: Anonymous authentication should be disabled"
+  severity: "high"
+  category: "authentication"
+  cis_control: "1.1.1"
+
+- key: control_plane_basic_auth
+  value: false
+  description: "Control Plane: Basic authentication should be disabled"
+  severity: "high"
+  category: "authentication"
+  cis_control: "1.1.2"
+
+- key: control_plane_token_auth
+  value: false
+  description: "Control Plane: Token-based authentication should be disabled"
+  severity: "high"
+  category: "authentication"
+  cis_control: "1.1.3"
+
+- key: control_plane_https
+  value: true
+  description: "Control Plane: API server should use HTTPS"
+  severity: "critical"
+  category: "encryption"
+  cis_control: "1.1.4"
+
+- key: control_plane_audit_logging
+  value: true
+  description: "Control Plane: Audit logging should be enabled"
+  severity: "medium"
+  category: "logging"
+  cis_control: "1.1.5"
+
+# Worker Node Policies
+- key: worker_node_kubelet_anonymous_auth
+  value: false
+  description: "Worker Node: Kubelet anonymous authentication should be disabled"
+  severity: "high"
+  category: "authentication"
+  cis_control: "4.1.1"
+
+- key: worker_node_kubelet_authorization
+  value: true
+  description: "Worker Node: Kubelet authorization should be enabled"
+  severity: "medium"
+  category: "authorization"
+  cis_control: "4.1.2"
+
+- key: worker_node_kubelet_readonly_port
+  value: false
+  description: "Worker Node: Kubelet read-only port should be disabled"
+  severity: "medium"
+  category: "network"
+  cis_control: "4.1.3"
+
+# Pod Security Policies
+- key: pod_security_policies_enabled
+  value: true
+  description: "Pod Security Policies should be enabled"
+  severity: "high"
+  category: "pod_security"
+  cis_control: "5.1.1"
+
+- key: pod_privileged_containers
+  value: false
+  description: "Privileged containers should not be allowed"
+  severity: "critical"
+  category: "pod_security"
+  cis_control: "5.1.2"
+
+- key: pod_host_network
+  value: false
+  description: "Host network access should be restricted"
+  severity: "high"
+  category: "pod_security"
+  cis_control: "5.1.3"
+
+- key: pod_host_pid
+  value: false
+  description: "Host PID access should be restricted"
+  severity: "high"
+  category: "pod_security"
+  cis_control: "5.1.4"
+
+# Network Policies
+- key: network_policies_enabled
+  value: true
+  description: "Network policies should be enabled"
+  severity: "medium"
+  category: "network"
+  cis_control: "5.2.1"
+
+- key: default_network_policy
+  value: true
+  description: "Default network policy should deny all traffic"
+  severity: "medium"
+  category: "network"
+  cis_control: "5.2.2"
+
+# RBAC Policies
+- key: rbac_enabled
+  value: true
+  description: "RBAC should be enabled"
+  severity: "high"
+  category: "authorization"
+  cis_control: "5.3.1"
+
+- key: service_account_automount
+  value: false
+  description: "Service account token automount should be disabled"
+  severity: "medium"
+  category: "authentication"
+  cis_control: "5.3.2"
+
+# Secrets Management
+- key: secrets_encryption_enabled
+  value: true
+  description: "Secrets should be encrypted at rest"
+  severity: "critical"
+  category: "encryption"
+  cis_control: "5.4.1"
+
+- key: secrets_rotation_enabled
+  value: true
+  description: "Secrets should be rotated regularly"
+  severity: "medium"
+  category: "secrets"
+  cis_control: "5.4.2" 

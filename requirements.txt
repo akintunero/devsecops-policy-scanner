@@ -1,4 +1,48 @@
-Flask
-PyYAML
-Click
-requests
+# Core dependencies
+Flask>=2.3.0
+PyYAML>=6.0
+Click>=8.1.0
+requests>=2.31.0
+
+# Enhanced CLI and UI
+typer>=0.9.0
+rich>=13.0.0
+colorama>=0.4.6
+
+# Security and scanning
+bandit>=1.7.5
+safety>=2.3.0
+semgrep>=1.40.0
+
+# Infrastructure scanning
+kubernetes>=28.1.0
+docker>=6.1.0
+boto3>=1.34.0
+
+# Data processing and analysis
+pandas>=2.0.0
+numpy>=1.24.0
+jsonschema>=4.19.0
+
+# Reporting and visualization
+jinja2>=3.1.0
+matplotlib>=3.7.0
+plotly>=5.15.0
+
+# Testing and development
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Async support
+aiofiles>=23.0.0
+asyncio-mqtt>=0.13.0
+
+# Configuration management
+python-dotenv>=1.0.0
+configparser>=6.0.0
+
+# Logging and monitoring
+structlog>=23.1.0
+prometheus-client>=0.17.0

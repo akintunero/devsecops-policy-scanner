@@ -51,7 +51,7 @@ Thank you for your interest in contributing to the DevSecOps Policy Scanner! Thi
 
 1. **Clone your fork**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/devsecops-policy-scanner.git
+   git clone https://github.com/akintunero/devsecops-policy-scanner.git
    cd devsecops-policy-scanner
    ```
 

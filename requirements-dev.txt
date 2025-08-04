@@ -16,7 +16,6 @@ flake8-docstrings>=1.7.0
 flake8-bugbear>=23.3.0
 flake8-comprehensions>=3.14.0
 flake8-pytest-style>=1.7.0
-pylint>=3.0.0
 mypy>=1.7.0
 bandit>=1.7.0
 safety>=2.3.0
@@ -33,15 +32,10 @@ mkdocs>=1.5.0
 mkdocs-material>=9.4.0
 mkdocstrings>=0.23.0
 mkdocstrings-python>=1.7.0
-mkdocs-git-revision-date-localized-plugin>=1.2.0
-mkdocs-minify-plugin>=0.7.0
-mike>=1.1.0
 
 # Development Tools
 ipython>=8.17.0
-ipdb>=0.13.0
 rich>=13.7.0
-debugpy>=1.8.0
 
 # Build Tools
 build>=1.0.0
@@ -50,10 +44,6 @@ wheel>=0.41.0
 
 # Security Tools
 detect-secrets>=1.4.0
-
-# Performance Testing
-locust>=2.17.0
-scalene>=1.5.0
 
 # Mock Services
 moto>=4.2.0
@@ -64,35 +54,10 @@ vcrpy>=5.1.0
 docker>=6.1.0
 kubernetes>=28.1.0
 
-# Infrastructure as Code
-python-terraform>=0.10.0
-boto3-stubs>=1.29.0
-azure-mgmt-core>=1.4.0
-google-cloud-core>=2.3.0
-
 # API Development
 httpx>=0.25.0
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
-
-# Debugging and Profiling
-py-spy>=0.3.0
-memory-profiler>=0.61.0
-line-profiler>=4.1.0
-
-# Git Hooks
-commitizen>=3.12.0
-gitlint>=0.19.0
-
-# Code Analysis
-radon>=6.0.0
-xenon>=0.9.0
-vulture>=2.10.0
-
-# Documentation Testing
-doc8>=1.1.0
-rstcheck>=6.2.0
-proselint>=0.13.0
 
 # Environment Management
 python-dotenv>=1.0.0
@@ -101,7 +66,6 @@ environs>=9.5.0
 # Dependency Management
 pip-tools>=7.3.0
 pipdeptree>=2.13.0
-deptry>=0.12.0
 
 # Testing Utilities
 faker>=20.1.0
@@ -110,7 +74,6 @@ freezegun>=1.2.0
 pytest-randomly>=3.15.0
 pytest-sugar>=0.9.0
 pytest-clarity>=1.0.0
-pytest-icdiff>=0.9.0
 
 # Code Generation
 cookiecutter>=2.4.0

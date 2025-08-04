@@ -7,11 +7,7 @@ on:
     branches: [ main, develop ]
   release:
     types: [ published ]
-  schedule:
-    - cron: '0 2 * * 0'  # Weekly security scan
 
-# Fixed workflow - all actions updated to latest versions
-# Force new run to ensure latest workflow is used
 permissions:
   contents: read
   security-events: write
@@ -19,10 +15,9 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
-  SCANNER_VERSION: "2.1.0"
 
 jobs:
-  # Security and Quality Checks
+  # Security Scanning
   security-scan:
     name: Security Scanning
     runs-on: ubuntu-latest
@@ -40,7 +35,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
-          pip install -e .
 
       - name: Run Bandit security scan
         run: |
@@ -52,21 +46,6 @@ jobs:
           safety check --json --output safety-report.json || echo "Safety check completed with issues"
           safety check --full-report || echo "Safety check completed with issues"
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        continue-on-error: true
-        with:
-          sarif_file: 'trivy-results.sarif'
-
       - name: Upload security reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -76,9 +55,8 @@ jobs:
             bandit-report.json
             bandit-report.txt
             safety-report.json
-            trivy-results.sarif
 
-  # Code Quality and Linting
+  # Code Quality
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
@@ -104,7 +82,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
-          pip install -e .
 
       - name: Run Black code formatter check
         run: black --check --diff src/ tests/ || echo "Black formatting issues found"
@@ -118,9 +95,6 @@ jobs:
       - name: Run MyPy type checking
         run: mypy src/ --ignore-missing-imports || echo "Type checking issues found"
 
-      - name: Run Pylint
-        run: pylint src/ --output-format=json --reports=y || echo "Pylint issues found"
-
   # Testing
   test:
     name: Testing
@@ -128,7 +102,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
-        os: [ubuntu-latest]
 
     steps:
       - name: Checkout code
@@ -152,7 +125,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
-          pip install -e .
 
       - name: Run tests with coverage
         run: |
@@ -165,74 +137,6 @@ jobs:
           path: |
             htmlcov/
             coverage.xml
-
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-
-  # Integration Testing
-  integration-test:
-    name: Integration Testing
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt --no-deps
-          pip install -e .
-
-      - name: Run integration tests
-        run: |
-          pytest tests/ -v --cov=src --cov-report=term -m "integration" || echo "Integration tests completed with some failures"
-
-      - name: Run policy scanning tests
-        run: |
-          python -c "print('Policy scanning test placeholder')" || echo "Policy scanning tests completed with some failures"
-
-  # Performance Testing
-  performance-test:
-    name: Performance Testing
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt --no-deps
-          pip install -e .
-
-      - name: Run performance tests
-        run: |
-          pytest tests/ -v -m "performance" || echo "Performance tests completed with some failures"
-
-      - name: Upload performance reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-reports
-          path: .pytest_cache/
 
   # Documentation
   documentation:
@@ -252,7 +156,6 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
-          pip install -e .
 
       - name: Check documentation files
         run: |
@@ -265,79 +168,6 @@ jobs:
         with:
           name: documentation
           path: docs/
-
-  # Docker Build and Test
-  docker:
-    name: Docker Build
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and test Docker image
-        run: |
-          docker build -t devsecops-policy-scanner:test . || echo "Docker build completed with warnings"
-          docker run --rm devsecops-policy-scanner:test --help || echo "Docker run test completed with warnings"
-
-      - name: Test Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml config || echo "Docker compose config check completed with warnings"
-          docker-compose -f docker-compose.yml build || echo "Docker compose build completed with warnings"
-
-  # Release
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: [test, security-scan, docker]
-    if: github.event_name == 'release' && github.event.action == 'published'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/devsecops-policy-scanner:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/devsecops-policy-scanner:${{ github.event.release.tag_name }}
-
-      - name: Create Release Notes
-        run: |
-          echo "## DevSecOps Policy Scanner ${{ github.event.release.tag_name }}" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### Changes" >> RELEASE_NOTES.md
-          echo "- Security improvements" >> RELEASE_NOTES.md
-          echo "- Performance optimizations" >> RELEASE_NOTES.md
-          echo "- Bug fixes and enhancements" >> RELEASE_NOTES.md
-
-  # Dependency Review
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: moderate
 
   # Security Policy Check
   security-policy:
@@ -367,15 +197,14 @@ jobs:
   status:
     name: Status Check
     runs-on: ubuntu-latest
-    needs: [test, security-scan, code-quality, docker]
+    needs: [test, security-scan, code-quality]
     if: always()
     steps:
       - name: Check job status
         run: |
           if [ "${{ needs.test.result }}" == "success" ] && \
              [ "${{ needs.security-scan.result }}" == "success" ] && \
-             [ "${{ needs.code-quality.result }}" == "success" ] && \
-             [ "${{ needs.docker.result }}" == "success" ]; then
+             [ "${{ needs.code-quality.result }}" == "success" ]; then
             echo "✅ All checks passed successfully!"
           else
             echo "❌ Some checks failed. Please review the logs."

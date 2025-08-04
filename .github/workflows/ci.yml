@@ -10,6 +10,7 @@ on:
   schedule:
     - cron: '0 2 * * 0'  # Weekly security scan
 
+# Fixed workflow - all actions updated to latest versions
 permissions:
   contents: read
   security-events: write

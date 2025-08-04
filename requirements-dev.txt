@@ -92,3 +92,6 @@ watchdog>=3.0.0
 
 # YAML Processing
 ruamel.yaml>=0.17.0
+
+# OPA Integration
+opa-python>=0.0.9

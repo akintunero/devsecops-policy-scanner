@@ -6,7 +6,13 @@ import json
 from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 import asyncio
-import opa_python
+
+try:
+    import opa_python
+    OPA_AVAILABLE = True
+except ImportError:
+    OPA_AVAILABLE = False
+    opa_python = None
 
 from dsp_scanner.utils.logger import get_logger
 
@@ -53,6 +59,10 @@ class Policy:
 
     def _validate_policy(self) -> None:
         """Validate the Rego policy syntax and compilation."""
+        if not OPA_AVAILABLE:
+            logger.warning("OPA not available, skipping policy validation")
+            return
+            
         try:
             opa_python.compile_str(self.rego_policy)
         except Exception as e:
@@ -68,6 +78,13 @@ class Policy:
         Returns:
             Dictionary containing evaluation results
         """
+        if not OPA_AVAILABLE:
+            logger.warning(f"OPA not available, skipping evaluation of policy {self.name}")
+            return self._process_evaluation_result({
+                "violations": [],
+                "message": "OPA not available"
+            })
+            
         try:
             # Create OPA instance with the policy
             opa = opa_python.OPA()

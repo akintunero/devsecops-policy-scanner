@@ -11,6 +11,7 @@ on:
     - cron: '0 2 * * 0'  # Weekly security scan
 
 # Fixed workflow - all actions updated to latest versions
+# Force new run to ensure latest workflow is used
 permissions:
   contents: read
   security-events: write

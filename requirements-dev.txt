@@ -89,9 +89,6 @@ typing-extensions>=4.8.0
 
 # Development Server
 watchdog>=3.0.0
-livereload>=2.6.0
 
-# Project-specific Development Dependencies
-opa-python>=1.2.0  # For OPA integration testing
-pyhcl>=0.4.0      # For Terraform file parsing
-ruamel.yaml>=0.17.0  # For YAML processing
+# YAML Processing
+ruamel.yaml>=0.17.0

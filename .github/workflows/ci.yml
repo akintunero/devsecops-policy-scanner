@@ -35,6 +35,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
+          pip install -e .
 
       - name: Run Bandit security scan
         run: |
@@ -82,6 +83,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
+          pip install -e .
 
       - name: Run Black code formatter check
         run: black --check --diff src/ tests/ || echo "Black formatting issues found"
@@ -125,6 +127,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
+          pip install -e .
 
       - name: Run tests with coverage
         run: |
@@ -156,6 +159,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements-dev.txt --no-deps
+          pip install -e .
 
       - name: Check documentation files
         run: |

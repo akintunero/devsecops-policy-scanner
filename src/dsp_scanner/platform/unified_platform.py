@@ -28,6 +28,10 @@ class UnifiedSecurityPlatform:
     2. Policy-as-Code Marketplace & Community Hub
     3. Advanced Compliance Automation
     4. Federated Learning for Security Patterns
+    
+    This platform orchestrates all components to provide a comprehensive
+    security scanning and compliance solution with real-time monitoring,
+    policy management, and collaborative intelligence.
     """
     
     def __init__(
@@ -37,14 +41,22 @@ class UnifiedSecurityPlatform:
         enable_compliance: bool = True,
         enable_federated_learning: bool = True
     ):
-        """Initialize unified platform."""
+        """
+        Initialize unified platform.
+        
+        Args:
+            enable_monitoring: Enable real-time monitoring features
+            enable_marketplace: Enable policy marketplace features
+            enable_compliance: Enable compliance automation features
+            enable_federated_learning: Enable federated learning features
+        """
         self.monitor = RealTimeMonitor() if enable_monitoring else None
         self.marketplace = PolicyRegistry() if enable_marketplace else None
         self.compliance = ComplianceAutomation() if enable_compliance else None
         self.federated_learning = FederatedLearningEngine() if enable_federated_learning else None
         self.scanner = Scanner(enable_ai=True)
         
-        logger.info("Unified Security Platform initialized")
+        logger.info("Unified Security Platform initialized with all features enabled")
     
     async def scan_with_full_analysis(
         self,

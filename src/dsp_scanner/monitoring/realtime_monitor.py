@@ -38,19 +38,29 @@ class RealTimeMonitor:
     """
     Real-time security monitoring platform.
     Manages WebSocket connections, event streaming, and live dashboards.
+    
+    Provides sub-second event delivery and scalable architecture for
+    enterprise-grade real-time security monitoring.
     """
     
-    def __init__(self):
+    def __init__(self, max_history: int = 1000):
+        """
+        Initialize real-time monitor.
+        
+        Args:
+            max_history: Maximum number of events to keep in history
+        """
         self.connected_clients: Set[Any] = set()
         self.event_history: List[MonitoringEvent] = []
-        self.max_history: int = 1000
+        self.max_history: int = max_history
         self.active_scans: Dict[str, Dict[str, Any]] = {}
         self.metrics: Dict[str, Any] = {
             'total_scans': 0,
             'active_scans': 0,
             'findings_detected': 0,
             'alerts_triggered': 0,
-            'risk_score_avg': 0.0
+            'risk_score_avg': 0.0,
+            'uptime_seconds': 0
         }
     
     async def connect_client(self, websocket: Any):

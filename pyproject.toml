@@ -1,3 +1,36 @@
+[project]
+name = "devsecops-policy-scanner"
+version = "2.1.0"
+description = "Advanced DevSecOps Policy Scanner for Docker, Terraform, Helm, and Kubernetes"
+authors = [{name = "Olúmáyòwá Akinkuehinmi", email = "akintunero101@gmail.com"}]
+license = {text = "MIT"}
+readme = "Readme.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["security", "compliance", "devsecops", "policy", "scanning", "kubernetes", "docker"]
+
+[project.scripts]
+devsecops-policy-scanner = "dsp_scanner.cli:app"
+dsp-scanner = "dsp_scanner.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.poetry]
 name = "devsecops-policy-scanner"
 version = "0.1.0"
@@ -41,8 +74,8 @@ pre-commit = "^2.15.0"
 devsecops-policy-scanner = "dsp_scanner.cli:app"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88

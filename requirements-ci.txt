@@ -17,6 +17,8 @@ python-hcl2>=4.3.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
 joblib>=1.3.0
+# Note: xgboost 2.0+ and lightgbm 4.0+ require Python 3.8+
+# For Python 3.9 compatibility, ensure pip and setuptools are up to date
 xgboost>=2.0.0
 lightgbm>=4.0.0
 pandas>=2.0.0

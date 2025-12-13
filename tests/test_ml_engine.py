@@ -2,15 +2,36 @@
 Tests for ML engine components.
 """
 
+import sys
+
 import numpy as np
 import pytest
 
 from dsp_scanner.core.results import Finding, ScanResult, Severity
-from dsp_scanner.ml.ai_engine import AIRiskPredictionEngine
-from dsp_scanner.ml.features.feature_extractor import SecurityFeatureExtractor
-from dsp_scanner.ml.models.anomaly_detector import SecurityAnomalyDetector
-from dsp_scanner.ml.models.risk_predictor import RiskPredictor
-from dsp_scanner.ml.models.zero_day_predictor import ZeroDayPredictor
+
+# Gracefully handle ML imports - skip tests if dependencies aren't available
+try:
+    from dsp_scanner.ml.ai_engine import AIRiskPredictionEngine
+    from dsp_scanner.ml.features.feature_extractor import SecurityFeatureExtractor
+    from dsp_scanner.ml.models.anomaly_detector import SecurityAnomalyDetector
+    from dsp_scanner.ml.models.risk_predictor import RiskPredictor
+    from dsp_scanner.ml.models.zero_day_predictor import ZeroDayPredictor
+    ML_AVAILABLE = True
+except ImportError as e:
+    ML_AVAILABLE = False
+    # Create dummy classes to avoid NameError in tests
+    AIRiskPredictionEngine = None
+    SecurityFeatureExtractor = None
+    SecurityAnomalyDetector = None
+    RiskPredictor = None
+    ZeroDayPredictor = None
+    ML_IMPORT_ERROR = str(e)
+
+# Skip all tests in this module if ML dependencies aren't available
+pytestmark = pytest.mark.skipif(
+    not ML_AVAILABLE,
+    reason=f"ML dependencies not available: {ML_IMPORT_ERROR if not ML_AVAILABLE else ''}"
+)
 
 
 @pytest.fixture

@@ -6,12 +6,27 @@ These tests avoid TensorFlow entirely and focus on the wrapper contract.
 
 from __future__ import annotations
 
+import sys
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
 from dsp_scanner.core.results import Finding, ScanResult, Severity
-from dsp_scanner.ml.analyzer import SecurityAnalyzer
+
+# Gracefully handle ML imports - skip tests if dependencies aren't available
+try:
+    from dsp_scanner.ml.analyzer import SecurityAnalyzer
+    ML_AVAILABLE = True
+except ImportError as e:
+    ML_AVAILABLE = False
+    SecurityAnalyzer = None
+    ML_IMPORT_ERROR = str(e)
+
+# Skip all tests in this module if ML dependencies aren't available
+pytestmark = pytest.mark.skipif(
+    not ML_AVAILABLE,
+    reason=f"ML dependencies not available: {ML_IMPORT_ERROR if not ML_AVAILABLE else ''}"
+)
 
 
 @pytest.fixture

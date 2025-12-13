@@ -10,6 +10,7 @@ import pytest
 from dsp_scanner.core.results import Finding, ScanResult, Severity
 
 # Gracefully handle ML imports - skip tests if dependencies aren't available
+ML_IMPORT_ERROR = None
 try:
     from dsp_scanner.ml.ai_engine import AIRiskPredictionEngine
     from dsp_scanner.ml.features.feature_extractor import SecurityFeatureExtractor
@@ -19,18 +20,18 @@ try:
     ML_AVAILABLE = True
 except ImportError as e:
     ML_AVAILABLE = False
+    ML_IMPORT_ERROR = str(e)
     # Create dummy classes to avoid NameError in tests
     AIRiskPredictionEngine = None
     SecurityFeatureExtractor = None
     SecurityAnomalyDetector = None
     RiskPredictor = None
     ZeroDayPredictor = None
-    ML_IMPORT_ERROR = str(e)
 
 # Skip all tests in this module if ML dependencies aren't available
 pytestmark = pytest.mark.skipif(
     not ML_AVAILABLE,
-    reason=f"ML dependencies not available: {ML_IMPORT_ERROR if not ML_AVAILABLE else ''}"
+    reason=f"ML dependencies not available: {ML_IMPORT_ERROR or 'Unknown error'}"
 )
 
 

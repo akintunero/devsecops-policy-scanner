@@ -14,18 +14,19 @@ import pytest
 from dsp_scanner.core.results import Finding, ScanResult, Severity
 
 # Gracefully handle ML imports - skip tests if dependencies aren't available
+ML_IMPORT_ERROR = None
 try:
     from dsp_scanner.ml.analyzer import SecurityAnalyzer
     ML_AVAILABLE = True
 except ImportError as e:
     ML_AVAILABLE = False
-    SecurityAnalyzer = None
     ML_IMPORT_ERROR = str(e)
+    SecurityAnalyzer = None
 
 # Skip all tests in this module if ML dependencies aren't available
 pytestmark = pytest.mark.skipif(
     not ML_AVAILABLE,
-    reason=f"ML dependencies not available: {ML_IMPORT_ERROR if not ML_AVAILABLE else ''}"
+    reason=f"ML dependencies not available: {ML_IMPORT_ERROR or 'Unknown error'}"
 )
 
 

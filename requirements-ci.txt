@@ -28,7 +28,9 @@ websockets>=11.0.0
 semver>=3.0.0
 
 # Policy engine
-opa-python>=0.0.9
+# Note: opa-python is not actually used in the codebase (see policy.py comments)
+# It requires Python 3.10+, so removed from CI requirements for Python 3.9 compatibility
+# opa-python>=0.0.9
 
 # Testing
 pytest>=7.4.0

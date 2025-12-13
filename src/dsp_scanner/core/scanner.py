@@ -3,15 +3,16 @@ Core scanner implementation providing the main scanning functionality.
 """
 
 import asyncio
-from typing import List, Dict, Any, Optional
+import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from dsp_scanner.core.results import ScanResult
 from dsp_scanner.core.policy import Policy
-from dsp_scanner.ml.analyzer import SecurityAnalyzer
+from dsp_scanner.core.results import ScanResult, Severity
 from dsp_scanner.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
 
 class Scanner:
     """
@@ -36,8 +37,16 @@ class Scanner:
         self.enable_ai = enable_ai
         self.compliance_frameworks = compliance_frameworks or ["cis", "nist"]
         self.severity_threshold = severity_threshold
-        self.security_analyzer = SecurityAnalyzer() if enable_ai else None
-        
+        # Lazy import to avoid circular dependency
+        self.security_analyzer = None
+        if enable_ai:
+            from dsp_scanner.ml.analyzer import SecurityAnalyzer
+
+            self.security_analyzer = SecurityAnalyzer()
+
+        # populated after a scan
+        self._last_metrics: Dict[str, Any] = {}
+
     async def scan_path(
         self,
         path: str,
@@ -55,15 +64,17 @@ class Scanner:
         Returns:
             ScanResult object containing all findings and analysis
         """
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Path does not exist: {path}")
+        start_time = time.perf_counter()
 
-        logger.info(f"Starting scan of {path} for platforms: {platforms}")
-        
+        path_obj = Path(path)
+        if not path_obj.exists():
+            raise FileNotFoundError(f"Path does not exist: {path_obj}")
+
+        logger.info(f"Starting scan of {path_obj} for platforms: {platforms}")
+
         # Detect platforms if not specified
         if not platforms:
-            platforms = await self._detect_platforms(path)
+            platforms = await self._detect_platforms(path_obj)
             logger.info(f"Detected platforms: {platforms}")
 
         # Initialize scan result
@@ -72,11 +83,17 @@ class Scanner:
         # Run platform-specific scans concurrently
         tasks = []
         for platform in platforms:
-            tasks.append(self._scan_platform(path, platform, policies))
-        
+            tasks.append(self._scan_platform(path_obj, platform, policies))
+
         platform_results = await asyncio.gather(*tasks)
         for result in platform_results:
             scan_result.merge(result)
+
+        # Apply severity threshold filtering to findings
+        scan_result.findings = self._filter_by_severity_threshold(
+            scan_result.findings, self.severity_threshold
+        )
+        scan_result._update_metrics()  # keep summary/metrics in sync
 
         # Perform AI analysis if enabled
         if self.enable_ai and self.security_analyzer:
@@ -88,6 +105,10 @@ class Scanner:
         # Generate recommendations
         await self._generate_recommendations(scan_result)
 
+        # Final metrics
+        scan_result.metrics["scan_duration"] = time.perf_counter() - start_time
+        self._last_metrics = dict(scan_result.metrics)
+
         logger.info("Scan completed successfully")
         return scan_result
 
@@ -96,23 +117,28 @@ class Scanner:
         Automatically detect which platforms are present in the given path.
         """
         platforms = set()
-        
+
         # Check for Docker
-        if list(path.rglob("Dockerfile")) or list(path.rglob("*.dockerfile")):
+        if (
+            list(path.rglob("Dockerfile"))
+            or list(path.rglob("Dockerfile.*"))
+            or list(path.rglob("*.dockerfile"))
+            or list(path.rglob("*.Dockerfile"))
+        ):
             platforms.add("docker")
-            
+
         # Check for Kubernetes
         if list(path.rglob("*.yaml")) or list(path.rglob("*.yml")):
             platforms.add("kubernetes")
-            
+
         # Check for Terraform
         if list(path.rglob("*.tf")) or list(path.rglob("*.tfvars")):
             platforms.add("terraform")
-            
+
         # Check for Helm
         if list(path.rglob("Chart.yaml")):
             platforms.add("helm")
-            
+
         return list(platforms)
 
     async def _scan_platform(
@@ -147,20 +173,21 @@ class Scanner:
         scan_result.add_risk_predictions(risks)
 
     async def _check_compliance(self, scan_result: ScanResult) -> None:
-        """
-        Check compliance against specified frameworks.
-        """
+        """Check compliance against specified frameworks."""
         for framework in self.compliance_frameworks:
-            compliance_checker = self._get_compliance_checker(framework)
-            compliance_result = await compliance_checker.check(scan_result)
-            scan_result.add_compliance_result(framework, compliance_result)
+            try:
+                compliance_checker = self._get_compliance_checker(framework)
+                compliance_result = await compliance_checker.check(scan_result)
+                scan_result.add_compliance_result(framework, compliance_result)
+            except Exception as e:
+                logger.warning(
+                    f"Compliance check failed for framework '{framework}': {e}"
+                )
 
     async def _generate_recommendations(self, scan_result: ScanResult) -> None:
-        """
-        Generate security recommendations based on scan findings.
-        """
-        recommendations = []
-        
+        """Generate security recommendations based on scan findings."""
+        recommendations: List[Any] = []
+
         # Generate platform-specific recommendations
         for platform in scan_result.platforms:
             platform_recs = await self._generate_platform_recommendations(
@@ -175,6 +202,34 @@ class Scanner:
 
         scan_result.set_recommendations(recommendations)
 
+    async def _generate_platform_recommendations(
+        self, platform: str, scan_result: ScanResult
+    ) -> List[Any]:
+        """Platform-specific recommendations (placeholder).
+
+        This keeps the scanner functional even if a platform doesn't yet have a
+        dedicated recommendation engine.
+        """
+        return []
+
+    @staticmethod
+    def _filter_by_severity_threshold(findings: List[Any], threshold: str) -> List[Any]:
+        """Filter findings by severity threshold."""
+        try:
+            threshold_enum = Severity(threshold)
+        except Exception:
+            threshold_enum = Severity.MEDIUM
+
+        return [
+            f
+            for f in findings
+            if getattr(f, "severity", Severity.INFO) >= threshold_enum
+        ]
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Return metrics from the most recent scan."""
+        return dict(self._last_metrics)
+
     def _get_platform_scanner(self, platform: str):
         """
         Get the appropriate scanner for the specified platform.
@@ -185,15 +240,14 @@ class Scanner:
             "terraform": "TerraformScanner",
             "helm": "HelmScanner",
         }
-        
+
         scanner_class = scanners.get(platform)
         if not scanner_class:
             raise ValueError(f"Unsupported platform: {platform}")
-            
+
         # Import the appropriate scanner dynamically
         module = __import__(
-            f"dsp_scanner.scanners.{platform}",
-            fromlist=[scanner_class]
+            f"dsp_scanner.scanners.{platform}", fromlist=[scanner_class]
         )
         return getattr(module, scanner_class)()
 
@@ -207,14 +261,13 @@ class Scanner:
             "hipaa": "HIPAAComplianceChecker",
             "pci": "PCIComplianceChecker",
         }
-        
+
         checker_class = checkers.get(framework)
         if not checker_class:
             raise ValueError(f"Unsupported compliance framework: {framework}")
-            
+
         # Import the appropriate checker dynamically
         module = __import__(
-            f"dsp_scanner.compliance.{framework}",
-            fromlist=[checker_class]
+            f"dsp_scanner.compliance.{framework}", fromlist=[checker_class]
         )
         return getattr(module, checker_class)()

@@ -31,8 +31,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt --no-deps
+          pip install -r requirements-ci.txt
 
       - name: Make Scripts Executable
         run: |
@@ -130,8 +129,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt --no-deps
+          pip install -r requirements-ci.txt
 
       - name: Download Dependency Reports
         uses: actions/download-artifact@v4
@@ -144,7 +142,7 @@ jobs:
           echo "Running code quality checks..."
           black --check --diff src/ || echo "Black formatting issues found"
           flake8 src/ --max-line-length=120 || echo "Flake8 linting issues found"
-          mypy src/ --ignore-missing-imports || echo "MyPy type checking issues found"
+          mypy src/dsp_scanner/ --ignore-missing-imports || echo "MyPy type checking issues found"
           echo "Code quality checks completed"
 
       - name: Generate Quality Report

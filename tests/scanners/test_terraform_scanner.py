@@ -2,18 +2,21 @@
 Tests for the Terraform security scanner.
 """
 
-import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
-from dsp_scanner.scanners.terraform import TerraformScanner
-from dsp_scanner.core.results import Finding, Severity
+import pytest
+
 from dsp_scanner.core.policy import Policy
+from dsp_scanner.core.results import Severity
+from dsp_scanner.scanners.terraform import TerraformScanner
+
 
 @pytest.fixture
 def scanner():
     """Create a Terraform scanner instance for testing."""
     return TerraformScanner()
+
 
 @pytest.fixture
 def mock_policy():
@@ -25,11 +28,13 @@ def mock_policy():
     policy.severity = "high"
     return policy
 
+
 def create_tf_file(tmp_path: Path, content: str) -> Path:
     """Helper to create a test Terraform file."""
     tf_file = tmp_path / "main.tf"
     tf_file.write_text(content)
     return tf_file
+
 
 @pytest.mark.asyncio
 async def test_scan_basic_aws_config(scanner, tmp_path):
@@ -43,13 +48,14 @@ async def test_scan_basic_aws_config(scanner, tmp_path):
         bucket = "my-test-bucket"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert result.findings
     assert any(f.id == "TF001" for f in result.findings)  # Missing versioning
     assert any(f.id == "TF002" for f in result.findings)  # Missing encryption
+
 
 @pytest.mark.asyncio
 async def test_scan_security_group_rules(scanner, tmp_path):
@@ -57,7 +63,7 @@ async def test_scan_security_group_rules(scanner, tmp_path):
     tf_content = """
     resource "aws_security_group" "test" {
         name = "test-sg"
-        
+
         ingress {
             from_port = 0
             to_port = 65535
@@ -66,11 +72,12 @@ async def test_scan_security_group_rules(scanner, tmp_path):
         }
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert any(f.id == "TF003" for f in result.findings)  # Open security group
+
 
 @pytest.mark.asyncio
 async def test_scan_azure_storage_account(scanner, tmp_path):
@@ -85,11 +92,12 @@ async def test_scan_azure_storage_account(scanner, tmp_path):
         enable_https_traffic_only = false
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert any(f.id == "TF004" for f in result.findings)  # HTTPS not enforced
+
 
 @pytest.mark.asyncio
 async def test_scan_gcp_storage_bucket(scanner, tmp_path):
@@ -100,11 +108,12 @@ async def test_scan_gcp_storage_bucket(scanner, tmp_path):
         location = "US"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert any(f.id == "TF006" for f in result.findings)  # Missing uniform access
+
 
 @pytest.mark.asyncio
 async def test_scan_provider_credentials(scanner, tmp_path):
@@ -116,11 +125,12 @@ async def test_scan_provider_credentials(scanner, tmp_path):
         region = "us-west-2"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert any(f.id == "TF008" for f in result.findings)  # Hardcoded credentials
+
 
 @pytest.mark.asyncio
 async def test_scan_secure_configuration(scanner, tmp_path):
@@ -132,11 +142,11 @@ async def test_scan_secure_configuration(scanner, tmp_path):
 
     resource "aws_s3_bucket" "secure" {
         bucket = "secure-bucket"
-        
+
         versioning {
             enabled = true
         }
-        
+
         server_side_encryption_configuration {
             rule {
                 apply_server_side_encryption_by_default {
@@ -144,20 +154,21 @@ async def test_scan_secure_configuration(scanner, tmp_path):
                 }
             }
         }
-        
+
         logging {
             target_bucket = aws_s3_bucket.log_bucket.id
             target_prefix = "log/"
         }
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     # Should have minimal or no findings
     assert not any(f.severity == Severity.CRITICAL for f in result.findings)
     assert not any(f.severity == Severity.HIGH for f in result.findings)
+
 
 @pytest.mark.asyncio
 async def test_scan_with_custom_policy(scanner, tmp_path, mock_policy):
@@ -168,22 +179,25 @@ async def test_scan_with_custom_policy(scanner, tmp_path, mock_policy):
         instance_type = "t2.micro"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
-    
+
     # Setup mock policy evaluation
     mock_policy.evaluate.return_value = {
-        "violations": [{
-            "title": "Custom Policy Violation",
-            "description": "Test violation",
-            "severity": "high"
-        }]
+        "violations": [
+            {
+                "title": "Custom Policy Violation",
+                "description": "Test violation",
+                "severity": "high",
+            }
+        ]
     }
-    
+
     result = await scanner.scan(tf_file, policies=[mock_policy])
-    
+
     assert any(f.id.startswith("POLICY_") for f in result.findings)
     mock_policy.evaluate.assert_called_once()
+
 
 @pytest.mark.asyncio
 async def test_scan_sensitive_variables(scanner, tmp_path):
@@ -201,11 +215,12 @@ async def test_scan_sensitive_variables(scanner, tmp_path):
         default = "1234567890"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     assert any(f.id == "TF009" for f in result.findings)  # Sensitive with default
+
 
 @pytest.mark.asyncio
 async def test_scan_sensitive_files(scanner, tmp_path):
@@ -214,10 +229,11 @@ async def test_scan_sensitive_files(scanner, tmp_path):
     (tmp_path / ".terraform").mkdir()
     (tmp_path / "terraform.tfstate").touch()
     (tmp_path / "terraform.tfvars").write_text('password = "secret"')
-    
+
     result = await scanner.scan(tmp_path)
-    
+
     assert any(f.id == "TF010" for f in result.findings)  # Sensitive files
+
 
 @pytest.mark.asyncio
 async def test_scan_multiple_files(scanner, tmp_path):
@@ -229,7 +245,7 @@ async def test_scan_multiple_files(scanner, tmp_path):
     }
     """
     create_tf_file(tmp_path, main_tf)
-    
+
     # Create variables file
     vars_tf = """
     variable "environment" {
@@ -237,7 +253,7 @@ async def test_scan_multiple_files(scanner, tmp_path):
     }
     """
     (tmp_path / "variables.tf").write_text(vars_tf)
-    
+
     # Create resources file
     resources_tf = """
     resource "aws_s3_bucket" "test" {
@@ -245,11 +261,12 @@ async def test_scan_multiple_files(scanner, tmp_path):
     }
     """
     (tmp_path / "resources.tf").write_text(resources_tf)
-    
+
     result = await scanner.scan(tmp_path)
-    
+
     assert result.metrics["total_files_scanned"] == 3
     assert result.metrics["total_resources_scanned"] > 0
+
 
 @pytest.mark.asyncio
 async def test_error_handling(scanner):
@@ -257,11 +274,13 @@ async def test_error_handling(scanner):
     with pytest.raises(FileNotFoundError):
         await scanner.scan(Path("/nonexistent/main.tf"))
 
+
 def test_is_terraform_file():
     """Test Terraform file detection."""
     assert TerraformScanner._is_terraform_file(Path("main.tf"))
     assert TerraformScanner._is_terraform_file(Path("variables.tf"))
     assert not TerraformScanner._is_terraform_file(Path("main.txt"))
+
 
 @pytest.mark.asyncio
 async def test_scan_resource_dependencies(scanner, tmp_path):
@@ -277,12 +296,13 @@ async def test_scan_resource_dependencies(scanner, tmp_path):
         vpc_security_group_ids = [aws_security_group.test.id]
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     # Verify that the scanner can handle resource dependencies
     assert result.metrics["total_resources_scanned"] == 2
+
 
 @pytest.mark.asyncio
 async def test_scan_module_usage(scanner, tmp_path):
@@ -291,15 +311,17 @@ async def test_scan_module_usage(scanner, tmp_path):
     module "vpc" {
         source = "terraform-aws-modules/vpc/aws"
         version = "2.0.0"
-        
+
         name = "my-vpc"
         cidr = "10.0.0.0/16"
     }
     """
-    
+
     tf_file = create_tf_file(tmp_path, tf_content)
     result = await scanner.scan(tf_file)
-    
+
     # Should check module version pinning
-    assert not any("version" in f.description and "latest" in f.description 
-                  for f in result.findings)
+    assert not any(
+        "version" in f.description and "latest" in f.description
+        for f in result.findings
+    )

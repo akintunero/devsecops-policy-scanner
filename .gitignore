@@ -8,6 +8,7 @@ __pycache__/
 venv/
 env/
 *.venv/
+.venv*/
 
 # Logs and debug files
 logs/
@@ -35,8 +36,12 @@ Thumbs.db
 
 # Coverage reports
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
+
+# Local ML model artifacts
+models/
 
 # Compiled artifacts
 dist/

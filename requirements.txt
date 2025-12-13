@@ -18,6 +18,10 @@ semgrep>=1.40.0
 kubernetes>=28.1.0
 docker>=6.1.0
 boto3>=1.34.0
+python-hcl2>=4.3.0
+
+# Policy engine
+opa-python>=0.0.9
 
 # Data processing and analysis
 pandas>=2.0.0

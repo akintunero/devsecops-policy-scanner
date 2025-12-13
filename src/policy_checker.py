@@ -1,6 +1,7 @@
 import os
+
 import yaml
-import json
+
 
 class PolicyChecker:
     def __init__(self, policy_dir="policies/"):
@@ -20,11 +21,19 @@ class PolicyChecker:
     def scan(self, repo_config):
         violations = []
         for policy in self.policies:  # Iterate over list of dictionaries
-            if policy["key"] in repo_config and repo_config[policy["key"]] != policy["value"]:
+            if (
+                policy["key"] in repo_config
+                and repo_config[policy["key"]] != policy["value"]
+            ):
                 violations.append(f"Violation: {policy['description']}")
         return violations if violations else ["✅ All security policies passed!"]
 
+
 if __name__ == "__main__":
-    sample_config = {"enforce_2fa": False, "secret_in_code": True, "branch_protection": True}
+    sample_config = {
+        "enforce_2fa": False,
+        "secret_in_code": True,
+        "branch_protection": True,
+    }
     checker = PolicyChecker()
     print("\n".join(checker.scan(sample_config)))

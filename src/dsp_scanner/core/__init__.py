@@ -2,8 +2,8 @@
 Core modules for DSP Scanner
 """
 
-from .scanner import Scanner
-from .results import ScanResult, Finding, Severity
 from .policy import Policy
+from .results import Finding, ScanResult, Severity
+from .scanner import Scanner
 
-__all__ = ["Scanner", "ScanResult", "Finding", "Severity", "Policy"] 
+__all__ = ["Scanner", "ScanResult", "Finding", "Severity", "Policy"]

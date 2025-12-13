@@ -329,11 +329,6 @@ Brief description of changes
    git push origin main --tags
    ```
 
-## Getting Help
-
-- Join our [Discord community](https://discord.gg/dsp-scanner)
-- Create an [issue](https://github.com/yourusername/dsp-scanner/issues)
-- Read the [documentation](https://dsp-scanner.readthedocs.io)
 
 ## Recognition
 

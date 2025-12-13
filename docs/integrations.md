@@ -388,6 +388,4 @@ export DSP_INTEGRATION_CONFIG=path/to/config.yml
 ## Support
 
 For questions and support:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/dsp-scanner/issues)
-- Documentation: [Full documentation](https://dsp-scanner.readthedocs.io)
-- Community: [Join our Discord](https://discord.gg/dsp-scanner)
+- GitHub Issues: [Create an issue](https://github.com/akintunero/dsp-scanner/issues)

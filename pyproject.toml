@@ -5,7 +5,7 @@ description = "Advanced DevSecOps Policy Scanner for Docker, Terraform, Helm, an
 authors = ["Olúmáyòwá Akinkuehinmi <akintunero101@gmail.com>"]
 license = "MIT"
 readme = "Readme.md"
-packages = [{include = "devsecops_policy_scanner", from = "src"}]
+packages = [{include = "dsp_scanner", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -38,7 +38,7 @@ flake8 = "^3.9.2"
 pre-commit = "^2.15.0"
 
 [tool.poetry.scripts]
-devsecops-policy-scanner = "devsecops_policy_scanner.cli:main"
+devsecops-policy-scanner = "dsp_scanner.cli:app"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

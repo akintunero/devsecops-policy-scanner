@@ -91,7 +91,6 @@ The **Enhanced DevSecOps Policy Scanner** is a comprehensive security compliance
 This project is being enhanced with cutting-edge features for security policy compliance. For detailed information on:
 
 - **Feature Roadmap**: See [FEATURE_ROADMAP.md](FEATURE_ROADMAP.md) for comprehensive feature plans
-- **Visa Application Strategy**: See [VISA_APPLICATION_STRATEGY.md](VISA_APPLICATION_STRATEGY.md) for strategic planning
 - **AI Engine Implementation**: See [IMPLEMENTATION_GUIDE_AI_ENGINE.md](IMPLEMENTATION_GUIDE_AI_ENGINE.md) for ML/AI implementation guide
 - **Unified Platform Features**: See [UNIFIED_PLATFORM_FEATURES.md](UNIFIED_PLATFORM_FEATURES.md) for unified platform documentation
 - **ML Approach (No LLM APIs)**: See [ML_APPROACH_NO_LLM.md](ML_APPROACH_NO_LLM.md) for traditional ML implementation
